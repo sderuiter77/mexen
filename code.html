@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mexen Deluxe 3D</title>
+    <style>
+        /* --- Enhanced Visual Styling --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #34495e; /* Dark Slate Blue */
+            --secondary-color: #3498db; /* Bright Blue */
+            --accent-color: #e74c3c; /* Red */
+            --background-start: #f8f9fa; /* Very Light Gray */
+            --background-end: #e9ecef;   /* Light Gray */
+            --text-color: #2c3e50; /* Darker Slate Blue */
+            --light-text: #ffffff;
+            --border-color: #ced4da; /* Medium Gray */
+            --dice-bg: #fdfdfd; /* Almost White */
+            --dice-dot: #2c3e50; /* Dark Slate Blue */
+            --special-message-bg: #fff3cd; /* Light Yellow */
+            --special-message-border: #ffeeba;
+            --special-message-text: #856404;
+            --shadow-color: rgba(0, 0, 0, 0.15);
+            --shadow-color-light: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: linear-gradient(to bottom, var(--background-start), var(--background-end));
+            color: var(--text-color);
+            margin: 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        h1 { font-size: 2.5em; text-shadow: 1px 1px 2px var(--shadow-color-light); }
+        h2 { font-size: 1.8em; }
+        h3 { font-size: 1.4em; }
+
+        .container {
+            background-color: var(--light-text);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border: 1px solid rgba(0,0,0,0.05);
+            width: 90%;
+            max-width: 500px; /* Slightly wider for better spacing */
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Increased gap */
+        }
+
+        #setup-fase { display: flex; flex-direction: column; align-items: center; }
+        #player-input {
+            padding: 14px 20px; border: 1px solid var(--border-color);
+            border-radius: 8px; width: 80%; font-size: 1em;
+            margin-bottom: 10px; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #player-input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        #player-list {
+            list-style: none; padding: 0; margin-top: 10px;
+            width: 100%; text-align: center;
+        }
+        #player-list li {
+            background-color: var(--background-start);
+            padding: 10px 15px; margin-bottom: 8px;
+            border-radius: 6px; font-weight: 600; color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease;
+        }
+         #player-list li:hover {
+             transform: scale(1.02);
+         }
+
+        #spel-fase { display: none; flex-direction: column; align-items: center; }
+        #spel-info {
+            width: 100%; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 15px; padding: 0 10px;
+            flex-wrap: wrap; gap: 10px;
+        }
+        #speler-aan-zet {
+             font-size: 1.5em; font-weight: 700; margin: 0;
+             color: var(--secondary-color);
+             text-shadow: 1px 1px 2px var(--shadow-color-light);
+        }
+        #worp-info { font-size: 1.1em; font-weight: 600; margin: 0; color: var(--primary-color); }
+
+        /* --- 3D Dice Styling --- */
+        .dice-container {
+            display: flex; justify-content: center; gap: 30px;
+            margin-bottom: 25px;
+            perspective: 1000px; /* Essential for 3D perception */
+        }
+
+        .die {
+            width: 85px; height: 85px; /* Slightly larger */
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Subtle gradient */
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px; /* More rounded */
+            padding: 8px; /* Padding for dots */
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1), /* Outer shadow */
+                       -5px -5px 15px rgba(255,255,255,0.7), /* Highlight shadow */
+                       inset 0 2px 4px rgba(255, 255, 255, 0.6), /* Inner highlight */
+                       inset 0 -2px 4px rgba(0, 0, 0, 0.05); /* Inner shadow */
+            cursor: default;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.5s ease-out; /* Smooth transitions */
+            transform-style: preserve-3d; /* Needed for potential 3D transforms */
+            /* transform: translateZ(-10px); /* Push it back slightly */
+        }
+        .die.clickable { cursor: pointer; }
+        .die.clickable:hover {
+            transform: scale(1.05) /*translateZ(-5px)*/ rotateY(5deg);
+            box-shadow: 7px 7px 20px rgba(0,0,0,0.18),
+                       -5px -5px 15px rgba(255,255,255,0.7),
+                       inset 0 2px 4px rgba(255, 255, 255, 0.6),
+                       inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .die.held {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color), /* Glow effect */
+                       5px 5px 15px rgba(0,0,0,0.1),
+                       -5px -5px 15px rgba(255,255,255,0.7),
+                       inset 0 2px 4px rgba(255, 255, 255, 0.6),
+                       inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+            transform: scale(1.02); /* Slightly larger when held */
+        }
+
+        .dot {
+            width: 16px; height: 16px; /* Slightly larger dots */
+            background-color: var(--dice-dot);
+            border-radius: 50%;
+            align-self: center; justify-self: center;
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.6), /* Inset shadow for depth */
+                       0 0 2px rgba(0, 0, 0, 0.2); /* Subtle outer shadow */
+            visibility: hidden;
+            /* transition: background-color 0.3s ease; */ /* Maybe overkill */
+        }
+        /* Dot positioning (remains the same) */
+        .dot:nth-child(1) { grid-area: 1 / 1; } .dot:nth-child(2) { grid-area: 1 / 2; } .dot:nth-child(3) { grid-area: 1 / 3; }
+        .dot:nth-child(4) { grid-area: 2 / 1; } .dot:nth-child(5) { grid-area: 2 / 2; } .dot:nth-child(6) { grid-area: 2 / 3; }
+        .dot:nth-child(7) { grid-area: 3 / 1; } .dot:nth-child(8) { grid-area: 3 / 2; } .dot:nth-child(9) { grid-area: 3 / 3; }
+        /* Dot visibility rules (remains the same) */
+        .die[data-value="0"] .dot { visibility: hidden; }
+        .die[data-value="1"] .dot:nth-child(5) { visibility: visible; }
+        .die[data-value="2"] .dot:nth-child(1), .die[data-value="2"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="3"] .dot:nth-child(1), .die[data-value="3"] .dot:nth-child(5), .die[data-value="3"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="4"] .dot:nth-child(1), .die[data-value="4"] .dot:nth-child(3), .die[data-value="4"] .dot:nth-child(7), .die[data-value="4"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="5"] .dot:nth-child(1), .die[data-value="5"] .dot:nth-child(3), .die[data-value="5"] .dot:nth-child(5), .die[data-value="5"] .dot:nth-child(7), .die[data-value="5"] .dot:nth-child(9) { visibility: visible; }
+        .die[data-value="6"] .dot:nth-child(1), .die[data-value="6"] .dot:nth-child(3), .die[data-value="6"] .dot:nth-child(4), .die[data-value="6"] .dot:nth-child(6), .die[data-value="6"] .dot:nth-child(7), .die[data-value="6"] .dot:nth-child(9) { visibility: visible; }
+
+        .score-display {
+            font-size: 2em; font-weight: 700; color: var(--secondary-color);
+            text-align: center; margin-top: 5px; margin-bottom: 20px;
+            text-shadow: 1px 1px 2px var(--shadow-color-light);
+        }
+
+        .message-area {
+            min-height: 30px; padding: 12px 18px;
+            background-color: var(--special-message-bg);
+            border: 1px solid var(--special-message-border);
+            border-radius: 8px; text-align: center;
+            font-weight: 600; color: var(--special-message-text);
+            margin-top: 10px; margin-bottom: 15px; display: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 2px 5px var(--shadow-color-light);
+        }
+        .message-area.visible { display: block; opacity: 1; }
+        .message-area.special {
+            color: var(--accent-color); font-size: 1.1em;
+            background-color: #f8d7da; border-color: #f5c6cb;
+        }
+
+        /* --- Enhanced Button Styling --- */
+        button {
+            background-image: linear-gradient(to bottom, var(--secondary-color), #2980b9); /* Blue gradient */
+            color: white; border: none; padding: 14px 28px;
+            border-radius: 10px; cursor: pointer; font-size: 1.1em;
+            font-weight: 600; font-family: 'Poppins', sans-serif;
+            transition: background-image 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        button:hover:not(:disabled) {
+            background-image: linear-gradient(to bottom, #3ba0e0, #2f89c0);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.5);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0px);
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+        }
+        button:disabled {
+            background-image: linear-gradient(to bottom, #bdc3c7, #a5acb1); /* Gray gradient */
+            cursor: not-allowed; opacity: 0.7;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+        }
+
+        #actie-knoppen { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%; }
+
+        /* --- Enhanced Results Styling --- */
+         #ronde-resultaten {
+            display: none; margin-top: 25px; padding: 25px 30px;
+            background-image: linear-gradient(to bottom, var(--primary-color), #2c3e50); /* Darker gradient */
+            border-radius: 12px; text-align: left; color: var(--light-text);
+            width: 90%; max-width: 500px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+         }
+         #ronde-resultaten h3 {
+             margin-top: 0; color: var(--light-text); text-align: center;
+             margin-bottom: 20px; font-size: 1.6em;
+             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+         #ronde-resultaten p, #ronde-resultaten div { margin-bottom: 12px; color: #ecf0f1; /* Slightly off-white */ font-size: 1.1em; line-height: 1.6; }
+         #ronde-resultaten strong { color: #aed6f1; font-weight: 700; } /* Light blue for emphasis */
+         #ronde-resultaten hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.2); margin: 20px 0; }
+         #ronde-resultaten button {
+             margin-top: 15px;
+             background-image: linear-gradient(to bottom, var(--secondary-color), #2980b9);
+             box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+             display: block; /* Center button */
+             margin-left: auto;
+             margin-right: auto;
+        }
+
+        /* --- Enhanced Shake Animation --- */
+        @keyframes shake {
+            0% { transform: translate(0, 0) rotateX(0) rotateY(0); }
+            10% { transform: translate(-5px, -2px) rotateX(-10deg) rotateY(8deg); }
+            20% { transform: translate(5px, 2px) rotateX(8deg) rotateY(-10deg); }
+            30% { transform: translate(-4px, -1px) rotateX(-6deg) rotateY(5deg); }
+            40% { transform: translate(4px, 1px) rotateX(5deg) rotateY(-6deg); }
+            50% { transform: translate(-3px, 0px) rotateX(-4deg) rotateY(3deg); }
+            60% { transform: translate(3px, 0px) rotateX(3deg) rotateY(-4deg); }
+            70% { transform: translate(-2px, -1px) rotateX(-2deg) rotateY(2deg); }
+            80% { transform: translate(2px, 1px) rotateX(2deg) rotateY(-2deg); }
+            90% { transform: translate(-1px, 0px) rotateX(-1deg) rotateY(1deg); }
+            100% { transform: translate(0, 0) rotateX(0) rotateY(0); }
+        }
+        .die.shaking {
+            animation: shake 0.7s cubic-bezier(.36,.07,.19,.97) both;
+            /* Ensure it appears slightly 'above' during shake */
+            transform: translateZ(10px);
+        }
+
+        /* --- Responsiveness --- */
+        @media (max-width: 600px) {
+            body { padding: 15px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+            .container { width: 95%; padding: 20px; gap: 15px;}
+            .die { width: 70px; height: 70px; border-radius: 12px; padding: 6px; gap: 4px;}
+            .dot { width: 14px; height: 14px; }
+            .dice-container { gap: 20px; }
+            #spel-info { flex-direction: column; align-items: center; gap: 8px; }
+            #speler-aan-zet { font-size: 1.3em; }
+            #worp-info { font-size: 1em; }
+            #actie-knoppen { flex-direction: column; width: 90%; align-items: stretch;}
+            button { width: 100%; padding: 12px 20px; font-size: 1em;}
+            #ronde-resultaten { width: 95%; padding: 20px; }
+            #ronde-resultaten h3 { font-size: 1.4em; }
+            #ronde-resultaten p, #ronde-resultaten div { font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mexen Deluxe 3D</h1>
+
+    <!-- Setup Fase -->
+    <div id="setup-fase" class="container">
+        <h2>Spelers</h2>
+        <input type="text" id="player-input" placeholder="Naam speler">
+        <button id="add-player-btn">Voeg Toe</button>
+        <ul id="player-list"></ul>
+        <button id="start-game-btn" disabled>Start Spel</button>
+        <p><small>Minimaal 2 spelers nodig.</small></p>
+    </div>
+
+    <!-- Spel Fase -->
+    <div id="spel-fase" class="container">
+        <h2 id="ronde-titel">Ronde 1</h2>
+        <div id="spel-info">
+             <h3 id="speler-aan-zet">Speler: ...</h3>
+             <div id="worp-info">Worp: <span id="worp-teller">0</span> / <span id="max-worpen">3</span></div>
+        </div>
+
+        <div class="dice-container">
+             <!-- Dice structure remains the same, CSS handles the look -->
+             <div id="die1" class="die" data-value="0">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <div id="die2" class="die" data-value="0">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+        </div>
+
+        <div id="score-display" class="score-display">Score: -</div>
+        <div id="message-area" class="message-area"></div>
+
+        <div id="actie-knoppen">
+            <!-- Button function remains the same -->
+            <button id="roll-btn" disabled>Gooi</button>
+            <button id="show-lowest-btn">Toon Laagste</button>
+        </div>
+
+        <div id="ronde-resultaten">
+             <h3>Ronde Resultaten</h3>
+             <!-- Changed resultaten-tekst to a div for better structure flexibility -->
+             <div id="resultaten-inhoud"></div>
+             <button id="next-round-btn">Volgende Ronde</button>
+         </div>
+    </div>
+
+    <script>
+        // --- JavaScript (largely unchanged, added comments, minor tweaks) ---
+
+        // Globale Variabelen
+        let players = [];
+        let currentPlayerIndex = 0;
+        let currentRound = 0;
+        let gameState = 'setup'; // setup, playing, turnOver, roundOver
+        let roundThrowsLimit = 3;
+        let throwsThisTurn = 0;
+        let currentDice = [0, 0];
+        let currentScoreResult = {}; // Houd het hele score object bij
+        let heldDice = [false, false];
+        let mustThrowHeld = false; // If one die was held, the other must be thrown
+        let roundLowestScore = Infinity; // Lowest score achieved this round (value)
+        let roundLowestPlayerIndices = []; // Indices of players who achieved the lowest score
+        let mexCountThisRound = 0; // How many times Mex was rolled this round
+        let playerRoundData = []; // Stores { name, score, drinksToTake, finalThrowValue, drinksFrom31, drinksFrom32 } for each player
+        let allowHolding = false; // Controls if dice can be clicked/held
+        let overtakenPlayerIndex = null; // Index of the player whose low score was just equaled/overtaken
+        let animationInterval = null; // Interval timer for roll animation
+
+        // DOM Elementen
+        const setupFaseDiv = document.getElementById('setup-fase');
+        const spelFaseDiv = document.getElementById('spel-fase');
+        const playerInput = document.getElementById('player-input');
+        const addPlayerBtn = document.getElementById('add-player-btn');
+        const playerListUl = document.getElementById('player-list');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const rondeTitel = document.getElementById('ronde-titel');
+        const spelerAanZetH3 = document.getElementById('speler-aan-zet');
+        const die1Div = document.getElementById('die1');
+        const die2Div = document.getElementById('die2');
+        const scoreDisplayDiv = document.getElementById('score-display');
+        const worpTellerSpan = document.getElementById('worp-teller');
+        const maxWorpenSpan = document.getElementById('max-worpen');
+        const messageAreaDiv = document.getElementById('message-area');
+        const rollBtn = document.getElementById('roll-btn');
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        const showLowestBtn = document.getElementById('show-lowest-btn');
+        const rondeResultatenDiv = document.getElementById('ronde-resultaten');
+        const resultatenInhoudDiv = document.getElementById('resultaten-inhoud'); // Target the div
+
+        // --- Event Listeners ---
+        addPlayerBtn.addEventListener('click', addPlayer);
+        playerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayer(); });
+        startGameBtn.addEventListener('click', startGame);
+        rollBtn.addEventListener('click', handleMainButtonClick); // Main button logic
+        nextRoundBtn.addEventListener('click', startNewRound);
+        showLowestBtn.addEventListener('click', showLowestScoreInfo);
+        die1Div.addEventListener('click', () => handleDieClick(0)); // Click listener for die 1
+        die2Div.addEventListener('click', () => handleDieClick(1)); // Click listener for die 2
+
+        // --- Main Button Logic ---
+        function handleMainButtonClick() {
+            // Determines action based on game state
+            if (gameState === 'playing') {
+                startRollAnimation(); // Start dice roll
+            } else if (gameState === 'turnOver') {
+                advanceToNext(); // Move to next player or end round
+            }
+            // In other states (setup, roundOver), the button is typically disabled
+        }
+
+        // --- Player Setup Functions ---
+        function addPlayer() {
+            const playerName = playerInput.value.trim();
+            if (playerName && players.length < 10) {
+                players.push({ name: playerName, totalDrinks: 0 }); // Add player object
+                playerInput.value = ''; // Clear input
+                updatePlayerList();
+                checkStartGameButton();
+            } else if (players.length >= 10) {
+                 showTemporaryMessage("Max 10 spelers toegestaan.", 'special'); // Inform user
+            }
+            playerInput.focus(); // Keep focus on input
+        }
+
+        function updatePlayerList() {
+             playerListUl.innerHTML = ''; // Clear current list
+            players.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = player.name;
+                playerListUl.appendChild(li); // Add player name to list
+            });
+        }
+
+        function checkStartGameButton() {
+            // Enable start button only if >= 2 players
+            startGameBtn.disabled = players.length < 2;
+        }
+
+        // --- Game Flow Functions ---
+        function startGame() {
+            if (players.length < 2) return; // Safety check
+            gameState = 'playing'; // Set initial state (will be refined in setupPlayerTurn)
+            setupFaseDiv.style.display = 'none'; // Hide setup
+            spelFaseDiv.style.display = 'flex'; // Show game area
+            hideMessage();
+            startNewRound(); // Start the first round
+        }
+
+        function startNewRound() {
+            rondeResultatenDiv.style.display = 'none'; // Hide previous results
+            nextRoundBtn.disabled = true; // Disable button until round ends
+            hideMessage();
+
+            currentRound++;
+            rondeTitel.textContent = `Ronde ${currentRound}`;
+            currentPlayerIndex = 0; // Start with the first player
+            roundThrowsLimit = 3; // Reset throw limit
+            mexCountThisRound = 0; // Reset Mex counter
+            roundLowestScore = Infinity; // Reset lowest score tracker
+            roundLowestPlayerIndices = []; // Reset lowest score players
+            overtakenPlayerIndex = null; // Reset overtake tracker
+            // Reset data for each player for this round
+            playerRoundData = players.map(p => ({
+                name: p.name, score: null, drinksToTake: 0, finalThrowValue: null, drinksFrom31: 0, drinksFrom32: 0
+            }));
+
+            setupPlayerTurn(); // Set up the turn for the first player
+        }
+
+        function setupPlayerTurn() {
+            gameState = 'playing'; // Set state to active play
+            const currentPlayer = players[currentPlayerIndex];
+            spelerAanZetH3.textContent = `${currentPlayer.name}`; // Display current player
+            throwsThisTurn = 0; // Reset turn throw count
+            currentScoreResult = {}; // Reset score object
+            currentDice = [0, 0]; // Reset dice values
+            heldDice = [false, false]; // Reset held status
+            mustThrowHeld = false; // Reset must-throw status
+            allowHolding = false; // Disable holding initially
+            overtakenPlayerIndex = null; // Reset overtake status for this turn
+
+            updateDiceDisplay(); // Show dice (initially '0')
+            scoreDisplayDiv.textContent = "Score: -"; // Reset score display
+            worpTellerSpan.textContent = throwsThisTurn;
+            maxWorpenSpan.textContent = roundThrowsLimit; // Show max throws allowed
+            rollBtn.disabled = false; // Enable roll button
+            rollBtn.textContent = "Gooi"; // Set button text
+            showLowestBtn.disabled = false; // Enable "Show Lowest" button
+            hideMessage(); // Clear any previous messages
+
+            // Reset dice visual state
+            die1Div.classList.remove('held', 'clickable', 'shaking');
+            die2Div.classList.remove('held', 'clickable', 'shaking');
+        }
+
+        // --- Dice Rolling & Animation ---
+        function startRollAnimation() {
+            rollBtn.disabled = true; // Disable buttons during roll
+            showLowestBtn.disabled = true;
+            allowHolding = false; // Prevent holding during animation
+            die1Div.classList.remove('clickable', 'held'); // Ensure dice are not clickable/held visually
+            die2Div.classList.remove('clickable', 'held');
+            hideMessage();
+
+            // Apply shaking animation only to non-held dice
+            if (!heldDice[0]) die1Div.classList.add('shaking');
+            if (!heldDice[1]) die2Div.classList.add('shaking');
+
+            let animationDuration = 700; // Duration of the animation (ms)
+            let intervalTime = 50; // How often to update dice faces (ms)
+            let elapsed = 0;
+
+            // Interval to rapidly change dice faces for visual effect
+            animationInterval = setInterval(() => {
+                if (!heldDice[0]) currentDice[0] = getRandomDieValue();
+                if (!heldDice[1]) currentDice[1] = getRandomDieValue();
+                updateDiceDisplay(true); // Update display, indicating it's animating
+                elapsed += intervalTime;
+                if (elapsed >= animationDuration) {
+                    finishRoll(); // Stop animation and process result
+                }
+            }, intervalTime);
+        }
+
+        function finishRoll() {
+            clearInterval(animationInterval); // Stop the interval timer
+            animationInterval = null;
+            die1Div.classList.remove('shaking'); // Remove animation class
+            die2Div.classList.remove('shaking');
+            handleRollResultLogic(); // Process the final dice values
+        }
+
+        function getRandomDieValue() {
+            // Returns a random integer between 1 and 6
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        function updateDiceDisplay(isAnimating = false) {
+            const dieElements = [die1Div, die2Div];
+            dieElements.forEach((el, index) => {
+                // Don't visually change a held die unless animating
+                const valueToShow = (heldDice[index] && !isAnimating) ? el.getAttribute('data-value') : currentDice[index].toString();
+                el.setAttribute('data-value', valueToShow);
+                 // Ensure 'held' class is only present if logically held and not currently forced to throw
+                el.classList.toggle('held', heldDice[index] && !mustThrowHeld);
+            });
+        }
+
+        // --- Roll Result & Score Logic ---
+        function handleRollResultLogic() {
+            // Determine final dice values for non-held dice
+            if (!heldDice[0]) currentDice[0] = getRandomDieValue();
+            if (!heldDice[1]) currentDice[1] = getRandomDieValue();
+            updateDiceDisplay(); // Show final dice faces
+
+            // Check if a die was held and must now be released
+            if (mustThrowHeld) {
+                 const originallyHeldIndex = heldDice.findIndex(h => h);
+                 if (originallyHeldIndex !== -1) {
+                     mustThrowHeld = false; // Reset the flag
+                     heldDice[originallyHeldIndex] = false; // Logically un-hold
+                     document.getElementById(`die${originallyHeldIndex + 1}`).classList.remove('held'); // Visually un-hold
+                 }
+             }
+
+            // Calculate the score based on the dice
+            currentScoreResult = calculateScore(currentDice[0], currentDice[1]);
+            scoreDisplayDiv.textContent = `Score: ${currentScoreResult.display}`; // Show score
+
+            // Handle special scores (31, 32) - they don't count as a throw and allow re-roll
+            if (currentScoreResult.type === 'special') {
+                 if (currentScoreResult.value === 31) {
+                    showTemporaryMessage(`${players[currentPlayerIndex].name}: 31! Deel 1 slok uit. Gooi opnieuw.`);
+                    playerRoundData[currentPlayerIndex].drinksFrom31++; // Track drinks given
+                } else if (currentScoreResult.value === 32) {
+                    showTemporaryMessage(`${players[currentPlayerIndex].name}: 32! Drink 1 slok zelf. Gooi opnieuw.`);
+                    playerRoundData[currentPlayerIndex].drinksFrom32++; // Track drinks taken
+                }
+                // Reset visual hold state, player can re-roll immediately
+                heldDice = [false, false];
+                allowHolding = false;
+                die1Div.classList.remove('held', 'clickable');
+                die2Div.classList.remove('held', 'clickable');
+                rollBtn.disabled = false; // Allow immediate re-roll
+                showLowestBtn.disabled = false;
+                return; // Exit early, turn does not advance yet
+            }
+
+            // Handle Mex (21) - ends turn immediately
+            if (currentScoreResult.type === 'mex') {
+                 mexCountThisRound++; // Increment round Mex count
+                 let mexMsg = `MEX! ${players[currentPlayerIndex].name} stopt direct.`;
+                 // If first player rolls Mex early, set the throw limit for others
+                 if (currentPlayerIndex === 0 && throwsThisTurn + 1 < roundThrowsLimit) {
+                     roundThrowsLimit = throwsThisTurn + 1;
+                     maxWorpenSpan.textContent = roundThrowsLimit; // Update display
+                     mexMsg += ` Nieuwe limiet: ${roundThrowsLimit} worpen.`;
+                 }
+                 mexMsg += ` Drankjes x${Math.pow(2, mexCountThisRound)}!`; // Show multiplier
+                 showTemporaryMessage(mexMsg, 'special'); // Display Mex message
+
+                 playerRoundData[currentPlayerIndex].score = 'Mex'; // Record score as 'Mex'
+                 playerRoundData[currentPlayerIndex].finalThrowValue = 1000; // Assign high value for comparison
+                 endPlayerTurn(); // End the turn
+                 return;
+            }
+
+            // Normal roll - increment throw count
+            throwsThisTurn++;
+            worpTellerSpan.textContent = throwsThisTurn;
+
+            // Store the numeric value and display string for the round data
+            playerRoundData[currentPlayerIndex].finalThrowValue = currentScoreResult.value;
+            playerRoundData[currentPlayerIndex].score = currentScoreResult.display;
+
+            // Check if the player has reached the throw limit
+            if (throwsThisTurn >= roundThrowsLimit) {
+                 endPlayerTurn(); // End the turn if max throws reached
+            } else {
+                 // Turn continues - allow holding
+                 rollBtn.disabled = false; // Enable roll button for next throw
+                 showLowestBtn.disabled = false;
+                 allowHolding = true; // Allow player to click dice
+                 die1Div.classList.add('clickable'); // Make dice visually clickable
+                 die2Div.classList.add('clickable');
+
+                 // Check if a die is currently held - if so, the other *must* be thrown next turn
+                 const heldIndex = heldDice.findIndex(h => h);
+                 if (heldIndex !== -1) {
+                     mustThrowHeld = true; // Set flag
+                     // Make the non-held die clickable (it must be rolled)
+                     document.getElementById(`die${1 - heldIndex + 1}`).classList.add('clickable');
+                     // Make the held die non-clickable
+                     document.getElementById(`die${heldIndex + 1}`).classList.remove('clickable');
+                 } else {
+                     mustThrowHeld = false; // Reset flag if no die is held
+                     // Make both dice clickable again if nothing is held
+                     die1Div.classList.add('clickable');
+                     die2Div.classList.add('clickable');
+                 }
+            }
+        }
+
+        function calculateScore(d1, d2) {
+            // Calculates the Mexen score based on two dice values
+            if (d1 === 0 || d2 === 0) return { value: 0, display: "-", type: 'none'}; // No score if dice not rolled
+            // Highest score: Mex
+            if ((d1 === 2 && d2 === 1) || (d1 === 1 && d2 === 2)) return { value: 1000, display: "Mex", type: 'mex' }; // Use high value for internal sorting
+             // Special throws (don't count as turn, allow re-roll)
+            if ((d1 === 3 && d2 === 1) || (d1 === 1 && d2 === 3)) return { value: 31, display: "31", type: 'special' };
+            if ((d1 === 3 && d2 === 2) || (d1 === 2 && d2 === 3)) return { value: 32, display: "32", type: 'special' };
+            // Doubles (e.g., 6-6 is 600)
+            if (d1 === d2) return { value: d1 * 100, display: `${d1}${d1}`, type: 'normal' }; // Use double digit display e.g. "66"
+            // Normal scores (highest die first, e.g., 5-3 is 53)
+            const high = Math.max(d1, d2);
+            const low = Math.min(d1, d2);
+            return { value: high * 10 + low, display: `${high}${low}`, type: 'normal' };
+        }
+
+        // --- Die Holding Logic ---
+        function handleDieClick(index) {
+            if (!allowHolding) return; // Can only hold when allowed
+
+            const dieElement = document.getElementById(`die${index + 1}`);
+            const otherIndex = 1 - index;
+            const otherDieElement = document.getElementById(`die${otherIndex + 1}`);
+
+            // Prevent clicking the die that *must* be thrown if one is already held
+            if (mustThrowHeld && heldDice[otherIndex]) {
+                 // If mustThrowHeld is true, it means the 'other' die is the one held.
+                 // Trying to click the current die (index) means trying to click the non-held one.
+                showTemporaryMessage("Je moet de niet-vastgehouden dobbelsteen gooien.");
+                return;
+            }
+
+            // Prevent holding both dice (New check: trying to hold this one WHILE other is already held)
+            if (!heldDice[index] && heldDice[otherIndex]) {
+                 showTemporaryMessage("Je kunt maar één dobbelsteen vasthouden.");
+                 return;
+            }
+
+            // Toggle the held state for the clicked die
+            heldDice[index] = !heldDice[index];
+            dieElement.classList.toggle('held', heldDice[index]);
+
+            // Update the 'mustThrowHeld' status and clickability
+            if (heldDice[index]) { // Just held this die
+                mustThrowHeld = true;
+                dieElement.classList.remove('clickable'); // The held die is not clickable
+                otherDieElement.classList.add('clickable'); // The other must be clickable (to be rolled)
+            } else { // Just released this die
+                mustThrowHeld = false;
+                // Both are now potentially clickable if holding is allowed
+                 dieElement.classList.add('clickable');
+                 otherDieElement.classList.add('clickable');
+            }
+        }
+
+        // --- Turn & Round Ending Logic ---
+        function endPlayerTurn() {
+            gameState = 'turnOver'; // Set state to indicate turn is finished
+            rollBtn.textContent = 'Volgende Speler'; // Change button text
+            rollBtn.disabled = false; // Enable button to proceed
+            showLowestBtn.disabled = true; // Disable "Show Lowest" until next turn starts
+            allowHolding = false; // Disable holding
+            die1Div.classList.remove('clickable', 'shaking', 'held'); // Reset dice visuals completely
+            die2Div.classList.remove('clickable', 'shaking', 'held');
+            heldDice = [false, false]; // Ensure logical held state is reset too
+            mustThrowHeld = false;
+
+            const finalScoreValue = playerRoundData[currentPlayerIndex].finalThrowValue;
+            const currentPlayerName = players[currentPlayerIndex].name;
+            const currentScoreDisplay = playerRoundData[currentPlayerIndex].score;
+
+            overtakenPlayerIndex = null; // Reset overtake flag for this check
+
+            // Update lowest score tracking (only for normal scores, not Mex/Specials/0)
+             if (finalScoreValue !== null && finalScoreValue > 32 && finalScoreValue < 1000) {
+                 if (finalScoreValue < roundLowestScore) {
+                     // New lowest score
+                    roundLowestScore = finalScoreValue;
+                    roundLowestPlayerIndices = [currentPlayerIndex]; // This player is now the sole lowest
+                    console.log(`New lowest: ${currentScoreDisplay} by ${currentPlayerName}`);
+                } else if (finalScoreValue === roundLowestScore) {
+                    // Score equals the current lowest
+                    if (roundLowestPlayerIndices.length > 0 && !roundLowestPlayerIndices.includes(currentPlayerIndex)) {
+                        // Someone else held the lowest score, and this player tied it
+                        const previousLowestPlayerIndex = roundLowestPlayerIndices[0]; // Assume single lowest for overtake rule
+                        overtakenPlayerIndex = previousLowestPlayerIndex; // Mark the overtaken player
+                        roundLowestPlayerIndices = [currentPlayerIndex]; // The current player 'takes' the lowest position
+                        showTemporaryMessage(`${currentPlayerName} (${currentScoreDisplay}) evenaart laagste! ${players[previousLowestPlayerIndex].name} moet mogelijk drinken!`, 'special');
+                        console.log(`${currentPlayerName} overtakes lowest score from ${players[previousLowestPlayerIndex].name}`);
+                    } else if (!roundLowestPlayerIndices.includes(currentPlayerIndex)) {
+                         // Tied with others, but no one was 'overtaken' yet (e.g., multiple people tied on first pass)
+                         roundLowestPlayerIndices.push(currentPlayerIndex);
+                         console.log(`${currentPlayerName} ties lowest score ${currentScoreDisplay}`);
+                    }
+                    // If the player already holds/shares the lowest score, do nothing new.
+                 }
+            }
+
+            // Display turn end message if no other special message is shown
+            if (!messageAreaDiv.classList.contains('visible')) {
+                 const displayScore = currentScoreDisplay || "Geen geldige score";
+                showTemporaryMessage(`Beurt van ${currentPlayerName} (${displayScore}) is klaar. Klik 'Volgende Speler'.`);
+            }
+        }
+
+        function advanceToNext() {
+            // Called when 'Volgende Speler' button is clicked
+            currentPlayerIndex++; // Move to the next player's index
+            if (currentPlayerIndex < players.length) {
+                // If there are more players in this round
+                setupPlayerTurn(); // Set up the next player's turn
+            } else {
+                // All players have had their turn, end the round
+                endRound();
+            }
+        }
+
+        function endRound() {
+            gameState = 'roundOver'; // Set state
+            rollBtn.disabled = true; // Disable main button
+            rollBtn.textContent = "Ronde Klaar"; // Update button text
+            showLowestBtn.disabled = true; // Disable other button
+            hideMessage(); // Clear any turn-specific messages
+
+            let drinksMultiplier = Math.pow(2, mexCountThisRound); // Calculate multiplier based on Mex count
+            let actionMessages = []; // Array to store messages about who drinks what
+            let finalStandings = []; // Array to store each player's result summary
+
+            // 1. Process drinks from special throws (31/32)
+            playerRoundData.forEach((data, index) => {
+                 if (data.drinksFrom31 > 0) {
+                     actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksFrom31} slok(ken) uit (door 31).`);
+                     // Note: Assigning who receives these is complex, kept simple here.
+                 }
+                 if (data.drinksFrom32 > 0) {
+                     actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksFrom32} slok(ken) zelf (door 32).`);
+                     data.drinksToTake += data.drinksFrom32; // Add to their own drink count
+                 }
+             });
+
+            // 2. Process drinks from being overtaken
+             if (overtakenPlayerIndex !== null && playerRoundData[overtakenPlayerIndex]) { // Check if index is valid
+                 const drinksForOvertake = 1 * drinksMultiplier; // Base drinks * multiplier
+                 actionMessages.push(`<strong>${players[overtakenPlayerIndex].name}</strong> drinkt ${drinksForOvertake} slok(ken) (laagste score ingehaald!).`);
+                 playerRoundData[overtakenPlayerIndex].drinksToTake += drinksForOvertake;
+             }
+            // 3. Process drinks for having the lowest score (only if not overtaken)
+             else if (roundLowestPlayerIndices.length > 0 && roundLowestScore !== Infinity) {
+                 const drinksForLowest = 1 * drinksMultiplier; // Base drinks * multiplier
+                 // Get names of players with the lowest score
+                 const loserNames = roundLowestPlayerIndices.map(i => `<strong>${players[i].name}</strong>`);
+                 // Get display score from the first player in the list
+                 const lowestScoreDisplay = playerRoundData[roundLowestPlayerIndices[0]]?.score || roundLowestScore; // Fallback to value if score string missing
+
+                 if (loserNames.length === 1) {
+                     actionMessages.push(`${loserNames[0]} heeft de laagste score (${lowestScoreDisplay}) en drinkt ${drinksForLowest} slok(ken).`);
+                 } else {
+                     actionMessages.push(`Gelijkspel laagste score (${lowestScoreDisplay}): ${loserNames.join(', ')} drinken elk ${drinksForLowest} slok(ken).`);
+                 }
+                 // Assign drinks to the lowest scoring players
+                 roundLowestPlayerIndices.forEach(index => {
+                    if(playerRoundData[index]) { // Check if player data exists
+                        playerRoundData[index].drinksToTake += drinksForLowest;
+                    }
+                 });
+            }
+            // Handle case where no valid lowest score was set (e.g., everyone rolled Mex)
+            else if (roundLowestScore === Infinity && overtakenPlayerIndex === null) {
+                 actionMessages.push("Geen geldige laagste score bepaald deze ronde (mogelijk alleen Mex gegooid?).");
+            }
+
+             // Build the final standings display string
+             playerRoundData.forEach((data) => {
+                 finalStandings.push(`${data.name}: Worp <strong>${data.score || '-'}</strong> / Drinkt <strong>${data.drinksToTake}</strong> slok(ken)`);
+                 // Update total drinks for players (optional, if you want to track across rounds)
+                 // let playerGlobalIndex = players.findIndex(p => p.name === data.name);
+                 // if (playerGlobalIndex !== -1) {
+                 //     players[playerGlobalIndex].totalDrinks += data.drinksToTake;
+                 // }
+             });
+
+            // Generate HTML for the results display
+             let resultsHTML = "<strong>Scores deze Ronde:</strong><br>" + finalStandings.join('<br>');
+             resultsHTML += "<hr><strong>Acties & Drankjes:</strong><br>";
+             resultsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
+             if (mexCountThisRound > 0) {
+                 resultsHTML += `<br><br><em>(Drankjes voor laagste/overname zijn vermenigvuldigd x${drinksMultiplier} door ${mexCountThisRound} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
+             }
+
+            resultatenInhoudDiv.innerHTML = resultsHTML; // Put HTML into the results div
+            rondeResultatenDiv.style.display = 'block'; // Show the results area
+            nextRoundBtn.disabled = false; // Enable button to start the next round
+        }
+
+
+        // --- Utility Functions ---
+        function showLowestScoreInfo() {
+            // Displays the current lowest score and who holds it
+            if (roundLowestScore === Infinity) {
+                showTemporaryMessage("Nog geen laagste score bepaald in deze ronde.");
+            } else {
+                 // Try to get the display score (e.g., "53" instead of 53)
+                 let lowestScoreDisplay = roundLowestScore; // Fallback
+                 if (roundLowestPlayerIndices.length > 0 && playerRoundData[roundLowestPlayerIndices[0]] && playerRoundData[roundLowestPlayerIndices[0]].score) {
+                     lowestScoreDisplay = playerRoundData[roundLowestPlayerIndices[0]].score;
+                 }
+                 const lowestPlayerNames = roundLowestPlayerIndices.map(i => players[i]?.name || 'Onbekend').join(', '); // Add safety check for name
+                showTemporaryMessage(`Huidige laagste score: ${lowestScoreDisplay} (van ${lowestPlayerNames})`);
+            }
+        }
+
+        function showTemporaryMessage(msg, type = 'info') {
+            // Displays a message in the message area
+            messageAreaDiv.innerHTML = msg; // Set message text
+            messageAreaDiv.className = 'message-area visible'; // Make it visible
+            if (type === 'special') {
+                messageAreaDiv.classList.add('special'); // Apply special styling if needed
+            }
+            // Optional: Auto-hide message after some time
+            // setTimeout(hideMessage, 5000); // Hide after 5 seconds
+        }
+
+        function hideMessage() {
+            // Hides the message area
+            messageAreaDiv.className = 'message-area';
+        }
+
+        // --- Initialisation ---
+        checkStartGameButton(); // Set initial state of start button
+        hideMessage(); // Ensure message area is hidden initially
+
+    </script>
+
+</body>
+</html>
