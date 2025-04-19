@@ -486,7 +486,7 @@
 
         <!-- Round Results (Initially hidden) -->
         <div id="ronde-resultaten">
-             <h3>Ronde Resultaten</h3>
+             <h3>Resultaten</h3>
              <div id="resultaten-acties"></div>
              <hr>
              <div id="resultaten-scores"></div>
@@ -849,10 +849,10 @@
                  const drinksNow = 1 * Math.pow(2, mexCountThisRound);
                  const slokText = pluralizeSlok(drinksNow);
                  if (currentScoreResult.value === 31) {
-                    showTemporaryMessage(`${currentPlayer.name}: 31! Deel ${drinksNow} ${slokText} uit. Gooi opnieuw.`);
+                    showTemporaryMessage(`31! Deel ${drinksNow} ${slokText} uit.`);
                     currentPlayer.drinksGivenFrom31 += drinksNow;
                 } else if (currentScoreResult.value === 32) {
-                    showTemporaryMessage(`${currentPlayer.name}: 32! Drink ${drinksNow} ${slokText} zelf. Gooi opnieuw.`);
+                    showTemporaryMessage(`32! Drink ${drinksNow} ${slokText} zelf.`);
                     currentPlayer.drinksTakenFrom32 += drinksNow;
                 }
                 heldDice = [false, false];
@@ -940,13 +940,13 @@
             const otherIndex = 1 - index;
 
             if (index === lockedDieIndex) {
-                showTemporaryMessage(`Deze dobbelsteen (${dieValue}) moet nu gooien (was vastgehouden).`);
+                showTemporaryMessage(`Je mag een dobbelsteen maar één keer vasthouden`);
                  playSound(soundError);
                 return;
             }
 
             if (dieValue > 3) {
-                 showTemporaryMessage(`Je kunt ${dieValue} niet vasthouden (alleen 1, 2 of 3).`);
+                 showTemporaryMessage(`Je kunt ${dieValue} niet vasthouden`);
                  playSound(soundError);
                  return;
             }
@@ -1007,7 +1007,7 @@
 
                          roundLowestPlayerIndices = [actualPlayerIndex]; // Current player takes over
 
-                         showTemporaryMessage(`${currentPlayerName} (${currentScoreDisplay}) evenaart laagste! ${playerRoundData[previousLowestPlayerIndex]?.name || 'Iemand'} moet extra drinken!`, 'special');
+                         showTemporaryMessage(`${currentPlayerName} neemt laag over!  ${playerRoundData[previousLowestPlayerIndex]?.name || 'Iemand'} moet ${1 * Math.pow(2, mexCountThisRound)} drinken!`, 'special');
                          console.log(`${currentPlayerName} overtakes/ties lowest score ${currentScoreDisplay} from ${playerRoundData[previousLowestPlayerIndex]?.name || 'Previous'}`);
                      }
                  }
@@ -1017,7 +1017,7 @@
             if (!messageAreaDiv.classList.contains('visible')) {
                  const displayScore = currentScoreDisplay || "Geen score";
                  // Keep message simple, button handles advance
-                showTemporaryMessage(`Beurt van ${currentPlayerName} (${displayScore}) is klaar.`);
+                showTemporaryMessage(`Beurt van ${currentPlayerName} is klaar.`);
             }
              // State is set at the top of the function now
         }
@@ -1050,15 +1050,15 @@
 
             let drinksMultiplier = Math.pow(2, mexCountThisRound);
             let actionMessages = [];
-            let scoreHTML = "<strong>Worpgeschiedenis:</strong><br>";
+            let scoreHTML = "<strong>Worp details</strong><br>";
             let actualRoundLowestNormalScoreValue = Infinity;
             let lowestScoreDisplayValue = null;
 
              // --- Calculate Drinks & Actions ---
             // 1. Process 31/32 drinks
             playerRoundData.forEach((data) => {
-                 if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (door 31).`);
-                 if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} zelf (door 32).`);
+                 if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (31).`);
+                 if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} (32).`);
              });
 
             // 2. Process Accumulated Overtake Drinks
@@ -1067,7 +1067,7 @@
                     if (playerRoundData[playerIndex]) {
                         const overtakenPlayerName = playerRoundData[playerIndex].name;
                         const overtakenScoreApprox = playerRoundData[playerIndex].scoreDisplay || '?';
-                        actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (score ${overtakenScoreApprox} ingehaald!).`);
+                        actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (${overtakenScoreApprox} laag overgenomen).`);
                         playerRoundData[playerIndex].drinksToTake += totalOvertakeDrinks;
                     } else {
                          console.error("Overtaken player index out of bounds:", playerIndex);
@@ -1110,7 +1110,7 @@
 
                  if (lowestPlayersForPenalty.length > 0) {
                      if (lowestPlayersForPenalty.length === 1) {
-                         actionMessages.push(`${lowestPlayersForPenalty[0]} heeft de laagste score (${displayScoreForMsg}) en drinkt ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+                         actionMessages.push(`${lowestPlayersForPenalty[0]}: laagste score, ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
                      } else {
                          actionMessages.push(`Gelijkspel laagste score (${displayScoreForMsg}): ${lowestPlayersForPenalty.join(', ')} drinken elk ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
                      }
@@ -1122,12 +1122,12 @@
 
 
             // --- Build Action Display HTML ---
-             let actionsHTML = "<strong class='actions-section'>Acties & Drankjes (Einde Ronde):</strong><br>";
+             let actionsHTML = "<strong class='actions-section'>Drinken!</strong><br>";
              actionsHTML += '<div class="actions-section">';
              actionsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
              if (mexCountThisRound > 0) {
                   const mexWord = numberToWord(mexCountThisRound);
-                 actionsHTML += `<br><em>(${pluralizeSlok(2)} voor laagste/overname x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
+                 actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
              }
              actionsHTML += '</div>';
             resultatenActiesDiv.innerHTML = actionsHTML; // RENDER ACTIONS FIRST
