@@ -261,13 +261,13 @@
         #actie-knoppen {
              display: flex;
              gap: 15px;
-             justify-content: center; /* Center buttons */
+             justify-content: center;
              flex-wrap: wrap;
              width: 100%;
              margin-top: 10px;
          }
         #actie-knoppen button {
-             width: auto; /* Allow buttons to size naturally */
+             width: auto;
              min-width: 150px;
         }
 
@@ -386,17 +386,17 @@
              #speler-aan-zet { font-size: 1.2em; }
              .score-display { font-size: 1.6em; }
               #actie-knoppen {
-                  flex-direction: row; /* Keep side-by-side */
-                  flex-wrap: wrap; /* Allow wrapping */
+                  flex-direction: row;
+                  flex-wrap: wrap;
                   justify-content: center;
                   width: 100%;
-                  gap: 10px; /* Space between buttons */
+                  gap: 10px;
               }
               #actie-knoppen button {
-                   width: auto; /* Size based on content */
-                   min-width: 120px; /* Smaller min width */
-                   padding: 10px 16px; /* Adjust padding */
-                   font-size: 0.9em; /* Smaller font */
+                   width: auto;
+                   min-width: 120px;
+                   padding: 10px 16px;
+                   font-size: 0.9em;
                }
              #ronde-resultaten { padding: 15px 20px; }
              #ronde-resultaten h3 { font-size: 1.3em; }
@@ -404,7 +404,7 @@
              #ronde-resultaten .actions-section { font-size: 0.95em; }
               #ronde-resultaten .score-section .throw-history { font-size: 0.9em; }
         }
-         @media (max-width: 420px) { /* Added breakpoint */
+         @media (max-width: 420px) {
              :root {
                 --dice-size: 80px;
                 --dot-size: 15px;
@@ -414,7 +414,7 @@
             }
              .dice-container { gap: 20px; margin-bottom: 15px; }
          }
-         @media (max-width: 360px) { /* Smallest screens */
+         @media (max-width: 360px) {
              :root {
                 --dice-size: 70px;
                 --dot-size: 13px;
@@ -424,8 +424,8 @@
             }
              .dice-container { gap: 15px; }
              #actie-knoppen button {
-                  width: 45%; /* Let them take more width */
-                  min-width: 0; /* Remove min-width */
+                  width: 45%;
+                  min-width: 0;
              }
          }
     </style>
@@ -477,7 +477,7 @@
         </div>
         <div id="score-display" class="score-display">Score: -</div>
         <div id="message-area" class="message-area"></div>
-        <!-- Restored action buttons div with both buttons -->
+        <!-- Restored action buttons div -->
         <div id="actie-knoppen">
             <button id="main-action-btn" disabled>Gooi</button>
             <button id="show-lowest-btn">Toon Laagste</button>
@@ -496,13 +496,15 @@
 
      <!-- Sound Effects (Remember to replace src paths) -->
      <audio id="sound-dice-roll" src="sounds/dice-roll.mp3" preload="auto"></audio>
-     <audio id="sound-button-click" src="sounds/button-click.mp3" preload="auto"></audio>
+     <audio id="sound-button-click" src="sounds/button-click.mp3" preload="auto"></audio> <!-- For most buttons -->
      <audio id="sound-hold-die" src="sounds/hold-die.mp3" preload="auto"></audio>
      <audio id="sound-mex" src="sounds/special-mex.mp3" preload="auto"></audio>
      <audio id="sound-special" src="sounds/special-31-32.mp3" preload="auto"></audio>
      <audio id="sound-error" src="sounds/error.mp3" preload="auto"></audio>
      <audio id="sound-round-end" src="sounds/round-end.mp3" preload="auto"></audio>
      <audio id="sound-player-added" src="sounds/player-added.mp3" preload="auto"></audio>
+     <audio id="sound-show-lowest" src="sounds/info-ping.mp3" preload="auto"></audio> <!-- Specific sound -->
+
 
     <script>
         // --- JavaScript ---
@@ -518,7 +520,7 @@
         let roundLowestPlayerIndices = [];
         let onlyMexRolledSoFar = true;
         let roundTurnOrder = [];
-        let currentPlayerIndex = 0; // Index into roundTurnOrder
+        let currentPlayerIndex = 0;
         let lastRoundLowestIndices = [];
         let overtakenPlayersMap = new Map();
         // Current Turn State
@@ -564,6 +566,8 @@
         const soundError = document.getElementById('sound-error');
         const soundRoundEnd = document.getElementById('sound-round-end');
         const soundPlayerAdded = document.getElementById('sound-player-added');
+        const soundShowLowest = document.getElementById('sound-show-lowest'); // Added
+
 
         // --- Sound Playback Helper ---
         function playSound(audioElement) {
@@ -616,7 +620,7 @@
                     startRollAnimation();
                 }
             }
-             // NOTE: Background click NO LONGER advances turn in 'turnOver' state.
+            // Background click no longer advances turn
         }
 
         // --- Main Button Logic ---
@@ -682,6 +686,7 @@
             spelInfoDiv.style.display = 'flex';
             scoreDisplayDiv.style.display = 'block';
             actieKnoppenDiv.style.display = 'flex'; // Show container for buttons
+
 
             currentRound++;
             rondeTitel.textContent = `Ronde ${currentRound}`;
@@ -1011,10 +1016,10 @@
             // --- End Turn Message ---
             if (!messageAreaDiv.classList.contains('visible')) {
                  const displayScore = currentScoreDisplay || "Geen score";
-                 // Use the main button now
-                showTemporaryMessage(`Beurt van ${currentPlayerName} (${displayScore}) is klaar. Klik 'Volgende Speler'.`);
+                 // Keep message simple, button handles advance
+                showTemporaryMessage(`Beurt van ${currentPlayerName} (${displayScore}) is klaar.`);
             }
-            // No need to set gameState again here, it's set at the top
+             // State is set at the top of the function now
         }
 
 
@@ -1135,7 +1140,7 @@
 
                  scoreHTML += `<div class="score-section">`;
                  scoreHTML += `<strong class="player-name">${data.name}:</strong>`;
-                 scoreHTML += `<span class="throw-history" data-player-index="${data.id}">`;
+                 scoreHTML += `<span class="throw-history" data-player-index="${data.id}">`; // Use original ID
 
                  let finalThrowIndex = -1;
                  if (data.throwsHistory.length > 0) {
@@ -1186,7 +1191,7 @@
 
         // --- Utility Functions ---
         function showLowestScoreInfo() {
-             playSound(soundButtonClick); // Play sound
+             playSound(soundShowLowest); // Play specific sound
              if (roundLowestScore === Infinity) {
                 showTemporaryMessage("Nog geen laagste score bepaald in deze ronde.");
             } else {
