@@ -25,11 +25,11 @@
             --shadow-color: rgba(0, 0, 0, 0.15);
             --shadow-color-light: rgba(0, 0, 0, 0.08);
             /* Dice Size */
-            --dice-size: 95px;
-            --dot-size: 18px;
-            --dice-padding: 9px;
-            --dice-gap: 5px;
-            --dice-radius: 18px;
+            --dice-size: 160px;
+            --dot-size: 30px;
+            --dice-padding: 15px;
+            --dice-gap: 8px;
+            --dice-radius: 25px;
         }
 
         html {
@@ -139,12 +139,16 @@
         }
         #worp-info { font-size: 1.0em; font-weight: 600; margin: 0; color: var(--primary-color); }
 
-        /* --- Bigger & Prettier Dice Styling --- */
+        /* --- Bigger Dice Styling --- */
         .dice-container {
-            display: flex; justify-content: center; gap: 35px;
-            margin-bottom: 25px;
-            perspective: 1200px;
-            min-height: calc(var(--dice-size) + 10px);
+            display: flex; /* Default state */
+            justify-content: center;
+            gap: 50px; /* Increased gap */
+            margin-bottom: 35px; /* Increased margin */
+            perspective: 1500px; /* Enhanced perspective */
+            min-height: calc(var(--dice-size) + 20px); /* Ensure space during animation */
+            width: 100%; /* Take full width */
+            box-sizing: border-box;
         }
 
         .die {
@@ -155,33 +159,33 @@
             padding: var(--dice-padding);
             display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
             gap: var(--dice-gap);
-            box-shadow: 6px 6px 18px rgba(0,0,0,0.12),
-                       -6px -6px 18px rgba(255,255,255,0.8),
-                       inset 0 3px 5px rgba(255, 255, 255, 0.7),
-                       inset 0 -3px 5px rgba(0, 0, 0, 0.06);
-            cursor: default;
+            box-shadow: 10px 10px 25px rgba(0,0,0,0.15), /* Increased shadow */
+                       -10px -10px 25px rgba(255,255,255,0.8),
+                       inset 0 4px 7px rgba(255, 255, 255, 0.7),
+                       inset 0 -4px 7px rgba(0, 0, 0, 0.06);
+            cursor: default; /* Base cursor */
             transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.5s ease-out;
             transform-style: preserve-3d;
         }
-        .die.clickable { cursor: pointer; }
+        .die.clickable {
+             cursor: pointer; /* Change cursor only when truly clickable */
+        }
         .die.clickable:hover {
             transform: scale(1.05) rotateY(6deg);
-            box-shadow: 8px 8px 22px rgba(0,0,0,0.18),
-                       -6px -6px 18px rgba(255,255,255,0.8),
-                       inset 0 3px 5px rgba(255, 255, 255, 0.7),
-                       inset 0 -3px 5px rgba(0, 0, 0, 0.06);
+            box-shadow: 12px 12px 30px rgba(0,0,0,0.20), /* Enhanced hover shadow */
+                       -10px -10px 25px rgba(255,255,255,0.8),
+                       inset 0 4px 7px rgba(255, 255, 255, 0.7),
+                       inset 0 -4px 7px rgba(0, 0, 0, 0.06);
         }
         .die.held {
             border-color: var(--accent-color);
-            box-shadow: 0 0 18px var(--accent-color),
-                       6px 6px 18px rgba(0,0,0,0.12),
-                       -6px -6px 18px rgba(255,255,255,0.8),
-                       inset 0 3px 5px rgba(255, 255, 255, 0.7),
-                       inset 0 -3px 5px rgba(0, 0, 0, 0.06);
+             /* Enhanced glow */
+            box-shadow: 0 0 25px var(--accent-color),
+                       10px 10px 25px rgba(0,0,0,0.15),
+                       -10px -10px 25px rgba(255,255,255,0.8),
+                       inset 0 4px 7px rgba(255, 255, 255, 0.7),
+                       inset 0 -4px 7px rgba(0, 0, 0, 0.06);
             transform: scale(1.02);
-        }
-        .die.cannot-hold {
-            /* opacity: 0.8; */
         }
 
         .dot {
@@ -189,8 +193,8 @@
             background-color: var(--dice-dot);
             border-radius: 50%;
             align-self: center; justify-self: center;
-            box-shadow: inset 1.5px 1.5px 4px rgba(0, 0, 0, 0.65),
-                       0 0 2px rgba(0, 0, 0, 0.25);
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.7),
+                       0 0 3px rgba(0, 0, 0, 0.3);
             visibility: hidden;
         }
         /* Dot positioning remains the same */
@@ -254,7 +258,19 @@
             transform: translateY(0);
         }
 
-        #actie-knoppen { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%; }
+        #actie-knoppen {
+             display: flex;
+             gap: 15px;
+             justify-content: center; /* Center buttons */
+             flex-wrap: wrap;
+             width: 100%;
+             margin-top: 10px;
+         }
+        #actie-knoppen button {
+             width: auto; /* Allow buttons to size naturally */
+             min-width: 150px;
+        }
+
 
         /* --- Results Styling --- */
          #ronde-resultaten {
@@ -307,10 +323,10 @@
 
          /* Actions section */
          #ronde-resultaten .actions-section {
-            margin-top: 15px;
+            font-size: 1.05em;
+            margin-bottom: 15px;
             color: #ecf0f1;
-            font-size: 1.0em;
-            line-height: 1.5;
+            line-height: 1.6;
          }
          #ronde-resultaten .actions-section strong {
              color: #aed6f1;
@@ -336,57 +352,81 @@
         /* --- Shake Animation --- */
         @keyframes shake {
             0% { transform: translate(0, 0) rotateX(0) rotateY(0); }
-            10% { transform: translate(-5px, -3px) rotateX(-6deg) rotateY(5deg); }
-            20% { transform: translate(5px, 3px) rotateX(5deg) rotateY(-6deg); }
-            30% { transform: translate(-4px, -2px) rotateX(-4deg) rotateY(3deg); }
-            40% { transform: translate(4px, 2px) rotateX(3deg) rotateY(-4deg); }
-            50% { transform: translate(-3px, -1px) rotateX(-2deg) rotateY(2deg); }
-            60% { transform: translate(3px, 1px) rotateX(2deg) rotateY(-2deg); }
+            10% { transform: translate(-8px, -5px) rotateX(-7deg) rotateY(6deg); }
+            20% { transform: translate(8px, 5px) rotateX(6deg) rotateY(-7deg); }
+            30% { transform: translate(-6px, -3px) rotateX(-5deg) rotateY(4deg); }
+            40% { transform: translate(6px, 3px) rotateX(4deg) rotateY(-5deg); }
+            50% { transform: translate(-4px, -1px) rotateX(-3deg) rotateY(2deg); }
+            60% { transform: translate(4px, 1px) rotateX(2deg) rotateY(-3deg); }
             70% { transform: translate(-2px, 0px) rotateX(-1deg) rotateY(1deg); }
             80% { transform: translate(2px, 0px) rotateX(1deg) rotateY(-1deg); }
             90% { transform: translate(-1px, 0px) rotateX(0deg) rotateY(0deg); }
             100% { transform: translate(0, 0) rotateX(0) rotateY(0); }
         }
         .die.shaking {
-            animation: shake 0.65s cubic-bezier(.36,.07,.19,.97) both;
-            transform: translateZ(12px);
+            animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both; /* Faster roll animation */
+            transform: translateZ(15px);
         }
 
         /* --- Responsiveness --- */
-        @media (max-width: 500px) {
+         @media (max-width: 500px) {
              :root {
-                --dice-size: 75px;
-                --dot-size: 14px;
-                --dice-padding: 7px;
-                --dice-gap: 4px;
-                --dice-radius: 14px;
+                --dice-size: 100px;
+                --dot-size: 18px;
+                --dice-padding: 10px;
+                --dice-gap: 5px;
+                --dice-radius: 18px;
             }
              .container { padding: 20px; gap: 15px; max-width: 95%;}
              .title-container { gap: 8px; margin-bottom: 10px;}
              h1 { font-size: 1.8em; }
              .penguin-logo { height: 35px; }
-             .dice-container { gap: 25px; }
+             .dice-container { gap: 30px; margin-bottom: 20px;}
              #spel-info { flex-direction: column; align-items: center; gap: 5px; }
              #speler-aan-zet { font-size: 1.2em; }
              .score-display { font-size: 1.6em; }
-             #actie-knoppen { flex-direction: column; width: 95%; align-items: stretch;}
-             button { width: 100%; padding: 11px 18px; font-size: 0.95em;}
+              #actie-knoppen {
+                  flex-direction: row; /* Keep side-by-side */
+                  flex-wrap: wrap; /* Allow wrapping */
+                  justify-content: center;
+                  width: 100%;
+                  gap: 10px; /* Space between buttons */
+              }
+              #actie-knoppen button {
+                   width: auto; /* Size based on content */
+                   min-width: 120px; /* Smaller min width */
+                   padding: 10px 16px; /* Adjust padding */
+                   font-size: 0.9em; /* Smaller font */
+               }
              #ronde-resultaten { padding: 15px 20px; }
              #ronde-resultaten h3 { font-size: 1.3em; }
              #ronde-resultaten .score-section,
              #ronde-resultaten .actions-section { font-size: 0.95em; }
               #ronde-resultaten .score-section .throw-history { font-size: 0.9em; }
         }
-         @media (max-width: 380px) {
+         @media (max-width: 420px) { /* Added breakpoint */
              :root {
-                --dice-size: 65px;
-                --dot-size: 12px;
+                --dice-size: 80px;
+                --dot-size: 15px;
+                --dice-padding: 8px;
+                --dice-gap: 4px;
+                --dice-radius: 15px;
+            }
+             .dice-container { gap: 20px; margin-bottom: 15px; }
+         }
+         @media (max-width: 360px) { /* Smallest screens */
+             :root {
+                --dice-size: 70px;
+                --dot-size: 13px;
                 --dice-padding: 6px;
                 --dice-gap: 3px;
                 --dice-radius: 12px;
             }
              .dice-container { gap: 15px; }
-             button { padding: 10px 15px; }
+             #actie-knoppen button {
+                  width: 45%; /* Let them take more width */
+                  min-width: 0; /* Remove min-width */
+             }
          }
     </style>
 </head>
@@ -418,11 +458,11 @@
     <!-- Spel Fase -->
     <div id="spel-fase" class="container">
         <h2 id="ronde-titel">Ronde 1</h2>
+        <!-- Elements to hide/show -->
         <div id="spel-info">
              <h3 id="speler-aan-zet">Speler: ...</h3>
              <div id="worp-info">Worp: <span id="worp-teller">0</span> / <span id="max-worpen">3</span></div>
         </div>
-
         <div class="dice-container">
              <div id="die1" class="die" data-value="0">
                 <span class="dot"></span><span class="dot"></span><span class="dot"></span>
@@ -435,57 +475,62 @@
                 <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
         </div>
-
         <div id="score-display" class="score-display">Score: -</div>
         <div id="message-area" class="message-area"></div>
-
+        <!-- Restored action buttons div with both buttons -->
         <div id="actie-knoppen">
-            <button id="roll-btn" disabled>Gooi</button>
+            <button id="main-action-btn" disabled>Gooi</button>
             <button id="show-lowest-btn">Toon Laagste</button>
         </div>
+        <!-- End elements to hide/show -->
 
+        <!-- Round Results (Initially hidden) -->
         <div id="ronde-resultaten">
              <h3>Ronde Resultaten</h3>
-             <!-- DIV for scores -->
-             <div id="resultaten-scores"></div>
-             <hr>
-             <!-- DIV for actions -->
              <div id="resultaten-acties"></div>
+             <hr>
+             <div id="resultaten-scores"></div>
              <button id="next-round-btn">Volgende Ronde</button>
          </div>
     </div>
+
+     <!-- Sound Effects (Remember to replace src paths) -->
+     <audio id="sound-dice-roll" src="sounds/dice-roll.mp3" preload="auto"></audio>
+     <audio id="sound-button-click" src="sounds/button-click.mp3" preload="auto"></audio>
+     <audio id="sound-hold-die" src="sounds/hold-die.mp3" preload="auto"></audio>
+     <audio id="sound-mex" src="sounds/special-mex.mp3" preload="auto"></audio>
+     <audio id="sound-special" src="sounds/special-31-32.mp3" preload="auto"></audio>
+     <audio id="sound-error" src="sounds/error.mp3" preload="auto"></audio>
+     <audio id="sound-round-end" src="sounds/round-end.mp3" preload="auto"></audio>
+     <audio id="sound-player-added" src="sounds/player-added.mp3" preload="auto"></audio>
 
     <script>
         // --- JavaScript ---
 
         // Globale Variabelen
         let players = [];
-        let playerRoundData = []; /* { name, id, scoreDisplay, drinksToTake, finalThrowValue,
-                                     throwsHistory: [{scoreResult}], drinksGivenFrom31, drinksTakenFrom32 } */
+        let playerRoundData = [];
         let currentRound = 0;
         let gameState = 'setup';
         let roundThrowsLimit = 3;
         let mexCountThisRound = 0;
         let roundLowestScore = Infinity;
-        let roundLowestPlayerIndices = []; // Stores original player indices
+        let roundLowestPlayerIndices = [];
         let onlyMexRolledSoFar = true;
         let roundTurnOrder = [];
         let currentPlayerIndex = 0; // Index into roundTurnOrder
         let lastRoundLowestIndices = [];
-        // NEW: Map to track accumulated overtake penalties
-        let overtakenPlayersMap = new Map(); // Stores <playerIndex, totalOvertakeDrinks>
+        let overtakenPlayersMap = new Map();
         // Current Turn State
         let throwsThisTurn = 0;
         let currentDice = [0, 0];
         let currentScoreResult = {};
         let heldDice = [false, false];
-        let mustThrowHeld = false;
+        let lockedDieIndex = null;
         let allowHolding = false;
-        // No longer need single overtakenPlayerIndex globally
-        // let overtakenPlayerIndex = null;
         let animationInterval = null;
 
-        // DOM Elementen (remains the same)
+        // DOM Elementen
         const setupFaseDiv = document.getElementById('setup-fase');
         const spelFaseDiv = document.getElementById('spel-fase');
         const playerInput = document.getElementById('player-input');
@@ -500,12 +545,38 @@
         const worpTellerSpan = document.getElementById('worp-teller');
         const maxWorpenSpan = document.getElementById('max-worpen');
         const messageAreaDiv = document.getElementById('message-area');
-        const rollBtn = document.getElementById('roll-btn');
+        const mainActionBtn = document.getElementById('main-action-btn'); // Restored main button reference
         const nextRoundBtn = document.getElementById('next-round-btn');
         const showLowestBtn = document.getElementById('show-lowest-btn');
         const rondeResultatenDiv = document.getElementById('ronde-resultaten');
         const resultatenScoresDiv = document.getElementById('resultaten-scores');
         const resultatenActiesDiv = document.getElementById('resultaten-acties');
+        const diceContainer = document.querySelector('.dice-container');
+        const spelInfoDiv = document.getElementById('spel-info');
+        const actieKnoppenDiv = document.getElementById('actie-knoppen');
+
+        // Sound Element References
+        const soundDiceRoll = document.getElementById('sound-dice-roll');
+        const soundButtonClick = document.getElementById('sound-button-click');
+        const soundHoldDie = document.getElementById('sound-hold-die');
+        const soundMex = document.getElementById('sound-mex');
+        const soundSpecial = document.getElementById('sound-special');
+        const soundError = document.getElementById('sound-error');
+        const soundRoundEnd = document.getElementById('sound-round-end');
+        const soundPlayerAdded = document.getElementById('sound-player-added');
+
+        // --- Sound Playback Helper ---
+        function playSound(audioElement) {
+            if (audioElement) {
+                audioElement.currentTime = 0;
+                audioElement.play().catch(error => {
+                    console.error("Error playing sound:", error);
+                });
+            } else {
+                console.warn("Attempted to play a null audio element.");
+            }
+        }
+
 
         // --- Helper Functions ---
         function pluralizeSlok(count) {
@@ -521,18 +592,40 @@
         addPlayerBtn.addEventListener('click', addPlayer);
         playerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayer(); });
         startGameBtn.addEventListener('click', startGame);
-        rollBtn.addEventListener('click', handleMainButtonClick);
+        mainActionBtn.addEventListener('click', handleMainButtonClick); // Restored listener
         nextRoundBtn.addEventListener('click', startNewRound);
-        showLowestBtn.addEventListener('click', showLowestScoreInfo);
+        showLowestBtn.addEventListener('click', showLowestScoreInfo); // Sound added in function
         die1Div.addEventListener('click', () => handleDieClick(0));
         die2Div.addEventListener('click', () => handleDieClick(1));
+        spelFaseDiv.addEventListener('click', handleBackgroundClick);
+
+
+        // --- Tap Anywhere Logic ---
+        function handleBackgroundClick(event) {
+            // Only trigger roll if game is in 'playing' state AND main button is enabled
+            if (gameState === 'playing' && !mainActionBtn.disabled) {
+                const target = event.target;
+                const isDie = target.closest('.die');
+                const isMainActionButton = target.closest('#main-action-btn'); // Check main button
+                const isShowLowestButton = target.closest('#show-lowest-btn');
+                const isResultsArea = target.closest('#ronde-resultaten');
+
+                // Trigger roll only if not clicking on interactive elements
+                if (!isDie && !isMainActionButton && !isShowLowestButton && !isResultsArea) {
+                    console.log("Background click triggered roll");
+                    startRollAnimation();
+                }
+            }
+             // NOTE: Background click NO LONGER advances turn in 'turnOver' state.
+        }
 
         // --- Main Button Logic ---
         function handleMainButtonClick() {
+             playSound(soundButtonClick); // Play sound on main button click
             if (gameState === 'playing') {
-                startRollAnimation();
+                startRollAnimation(); // Start dice roll
             } else if (gameState === 'turnOver') {
-                advanceToNext();
+                advanceToNext(); // Move to next player or end round
             }
         }
 
@@ -544,8 +637,12 @@
                 playerInput.value = '';
                 updatePlayerList();
                 checkStartGameButton();
+                 playSound(soundPlayerAdded);
             } else if (players.length >= 10) {
                  showTemporaryMessage("Max 10 spelers toegestaan.", 'special');
+                 playSound(soundError);
+            } else {
+                 playSound(soundError);
             }
             playerInput.focus();
         }
@@ -566,6 +663,7 @@
         // --- Game Flow Functions ---
         function startGame() {
             if (players.length < 2) return;
+            playSound(soundButtonClick);
             lastRoundLowestIndices = [];
             setupFaseDiv.style.display = 'none';
             spelFaseDiv.style.display = 'flex';
@@ -574,9 +672,16 @@
         }
 
         function startNewRound() {
-            rondeResultatenDiv.style.display = 'none';
+             playSound(soundButtonClick);
+            rondeResultatenDiv.style.display = 'none'; // Hide results
             nextRoundBtn.disabled = true;
             hideMessage();
+
+            // --- Show Game Elements ---
+            diceContainer.style.display = 'flex';
+            spelInfoDiv.style.display = 'flex';
+            scoreDisplayDiv.style.display = 'block';
+            actieKnoppenDiv.style.display = 'flex'; // Show container for buttons
 
             currentRound++;
             rondeTitel.textContent = `Ronde ${currentRound}`;
@@ -585,44 +690,51 @@
             roundLowestScore = Infinity;
             roundLowestPlayerIndices = [];
             onlyMexRolledSoFar = true;
-            overtakenPlayersMap = new Map(); // Reset overtake map for the new round
+            overtakenPlayersMap = new Map();
+            lockedDieIndex = null;
 
-            // Determine Turn Order
+            // Determine Turn Order (remains the same)
             roundTurnOrder = [];
-            if (lastRoundLowestIndices.length > 0) {
-                const startingPlayerIndex = lastRoundLowestIndices[0];
-                roundTurnOrder.push(startingPlayerIndex);
-                let currentIndex = (startingPlayerIndex + 1) % players.length;
-                while (roundTurnOrder.length < players.length) { // Ensure all players are added
+             if (lastRoundLowestIndices.length > 0) {
+                 const startingPlayerIndex = lastRoundLowestIndices[0];
+                 roundTurnOrder.push(startingPlayerIndex);
+                 let currentIndex = (startingPlayerIndex + 1) % players.length;
+                 while (roundTurnOrder.length < players.length) {
                      if (!lastRoundLowestIndices.includes(currentIndex)) {
                          roundTurnOrder.push(currentIndex);
                      }
-                     currentIndex = (currentIndex + 1) % players.length;
-                     // Safety break (shouldn't be needed with modulo)
-                     if (currentIndex === startingPlayerIndex && roundTurnOrder.length < players.length) {
-                          console.error("Turn order calculation error!");
-                          // Fallback to default order if something goes wrong
-                          roundTurnOrder = players.map((_, index) => index);
-                          break;
-                     }
-                 }
-                 // Add any other tied lowest players if not already added
-                  lastRoundLowestIndices.slice(1).forEach(idx => {
-                      if (!roundTurnOrder.includes(idx)) {
-                           roundTurnOrder.push(idx);
+                      if (currentIndex === startingPlayerIndex && roundTurnOrder.length < players.length) {
+                           lastRoundLowestIndices.slice(1).forEach(idx => {
+                               if (!roundTurnOrder.includes(idx)) {
+                                   roundTurnOrder.push(idx);
+                               }
+                           });
+                          if(roundTurnOrder.length < players.length) {
+                              console.error("Error building turn order, potential infinite loop");
+                              for(let pIdx = 0; pIdx < players.length; pIdx++) {
+                                  if (!roundTurnOrder.includes(pIdx)) roundTurnOrder.push(pIdx);
+                              }
+                          }
+                         break;
                       }
-                  });
-
+                     currentIndex = (currentIndex + 1) % players.length;
+                 }
+                  if (roundTurnOrder.length !== players.length) {
+                       console.warn("Turn order correction: Adding missing players");
+                        for(let pIdx = 0; pIdx < players.length; pIdx++) {
+                                  if (!roundTurnOrder.includes(pIdx)) roundTurnOrder.push(pIdx);
+                         }
+                  }
             } else {
-                // First round: normal order
                 roundTurnOrder = players.map((_, index) => index);
             }
             console.log("New Round Turn Order (indices):", roundTurnOrder);
 
+
             // Reset round data
             playerRoundData = players.map((p, index) => ({
                 name: p.name,
-                id: index, // Store original index
+                id: index,
                 scoreDisplay: null,
                 drinksToTake: 0,
                 finalThrowValue: null,
@@ -644,36 +756,38 @@
             currentScoreResult = {};
             currentDice = [0, 0];
             heldDice = [false, false];
-            mustThrowHeld = false;
+            lockedDieIndex = null;
             allowHolding = false;
 
             updateDiceDisplay();
             scoreDisplayDiv.textContent = "Score: -";
             worpTellerSpan.textContent = throwsThisTurn;
             maxWorpenSpan.textContent = roundThrowsLimit;
-            rollBtn.disabled = false;
-            rollBtn.textContent = "Gooi";
+            mainActionBtn.disabled = false; // Enable main button
+            mainActionBtn.textContent = "Gooi"; // Set text
             showLowestBtn.disabled = false;
             hideMessage();
 
-            die1Div.classList.remove('held', 'clickable', 'shaking', 'cannot-hold');
-            die2Div.classList.remove('held', 'clickable', 'shaking', 'cannot-hold');
+            // Reset visual state
+            die1Div.classList.remove('held', 'clickable', 'shaking');
+            die2Div.classList.remove('held', 'clickable', 'shaking');
         }
 
         // --- Dice Rolling & Animation ---
         function startRollAnimation() {
-            rollBtn.disabled = true;
+            playSound(soundDiceRoll);
+            mainActionBtn.disabled = true; // Disable main button during roll
             showLowestBtn.disabled = true;
             allowHolding = false;
-            die1Div.classList.remove('clickable', 'held', 'cannot-hold');
-            die2Div.classList.remove('clickable', 'held', 'cannot-hold');
+            die1Div.classList.remove('clickable', 'held');
+            die2Div.classList.remove('clickable', 'held');
             hideMessage();
 
             if (!heldDice[0]) die1Div.classList.add('shaking');
             if (!heldDice[1]) die2Div.classList.add('shaking');
 
-            let animationDuration = 650;
-            let intervalTime = 45;
+            let animationDuration = 350;
+            let intervalTime = 40;
             let elapsed = 0;
 
             animationInterval = setInterval(() => {
@@ -704,42 +818,31 @@
             dieElements.forEach((el, index) => {
                 const valueToShow = (heldDice[index] && !isAnimating) ? el.getAttribute('data-value') : currentDice[index].toString();
                 el.setAttribute('data-value', valueToShow);
-                el.classList.toggle('held', heldDice[index] && !mustThrowHeld);
-                el.classList.remove('cannot-hold');
+                el.classList.toggle('held', heldDice[index]);
             });
         }
 
         // --- Roll Result & Score Logic ---
         function handleRollResultLogic() {
-            if (!heldDice[0]) currentDice[0] = getRandomDieValue();
-            if (!heldDice[1]) currentDice[1] = getRandomDieValue();
-            updateDiceDisplay();
+            const heldIndexBeforeRoll = heldDice.findIndex(h => h);
 
-            if (mustThrowHeld) {
-                 const originallyHeldIndex = heldDice.findIndex(h => h);
-                 if (originallyHeldIndex !== -1) {
-                     mustThrowHeld = false;
-                     heldDice[originallyHeldIndex] = false;
-                     document.getElementById(`die${originallyHeldIndex + 1}`).classList.remove('held');
-                 }
-             }
+            if (heldIndexBeforeRoll !== 0) currentDice[0] = getRandomDieValue();
+            if (heldIndexBeforeRoll !== 1) currentDice[1] = getRandomDieValue();
+            updateDiceDisplay();
 
             currentScoreResult = calculateScore(currentDice[0], currentDice[1]);
             scoreDisplayDiv.textContent = `Score: ${currentScoreResult.display}`;
-
             const actualPlayerIndex = roundTurnOrder[currentPlayerIndex];
             const currentPlayer = playerRoundData[actualPlayerIndex];
 
-            // --- Add throw to history (including specials) ---
              currentPlayer.throwsHistory.push({
                  scoreResult: { ...currentScoreResult }
              });
 
-            // Handle special scores (31, 32) - History added above, turn doesn't count
             if (currentScoreResult.type === 'special') {
+                 playSound(soundSpecial);
                  const drinksNow = 1 * Math.pow(2, mexCountThisRound);
                  const slokText = pluralizeSlok(drinksNow);
-
                  if (currentScoreResult.value === 31) {
                     showTemporaryMessage(`${currentPlayer.name}: 31! Deel ${drinksNow} ${slokText} uit. Gooi opnieuw.`);
                     currentPlayer.drinksGivenFrom31 += drinksNow;
@@ -748,33 +851,44 @@
                     currentPlayer.drinksTakenFrom32 += drinksNow;
                 }
                 heldDice = [false, false];
+                lockedDieIndex = null;
                 allowHolding = false;
-                die1Div.classList.remove('held', 'clickable', 'cannot-hold');
-                die2Div.classList.remove('held', 'clickable', 'cannot-hold');
-                rollBtn.disabled = false;
+                die1Div.classList.remove('held', 'clickable');
+                die2Div.classList.remove('held', 'clickable');
+                mainActionBtn.disabled = false; // Re-enable main button
                 showLowestBtn.disabled = false;
-                return; // Exit early
+                return;
             }
 
-            // --- If NOT special, it's a countable throw ---
             throwsThisTurn++;
             worpTellerSpan.textContent = throwsThisTurn;
 
-            // Update player's final tracked score for the round
              currentPlayer.finalThrowValue = currentScoreResult.value;
              currentPlayer.scoreDisplay = currentScoreResult.display;
 
-             // Update Mex Rule Flag if a normal score is rolled
              if (currentScoreResult.type === 'normal') {
                  onlyMexRolledSoFar = false;
              }
 
-            // Handle Mex (21) - Ends turn, history added above
+            heldDice = [false, false]; // Reset logical hold
+            die1Div.classList.remove('held'); // Remove visual hold
+            die2Div.classList.remove('held');
+
+
+            if (heldIndexBeforeRoll !== -1) {
+                 lockedDieIndex = heldIndexBeforeRoll; // Lock the held die
+                 console.log(`Die ${lockedDieIndex} is now locked for next hold.`);
+             } else {
+                 lockedDieIndex = null;
+                 console.log("No die locked for next hold.");
+             }
+
+
             if (currentScoreResult.type === 'mex') {
+                 playSound(soundMex);
                  mexCountThisRound++;
                  const multiplier = Math.pow(2, mexCountThisRound);
                  let mexMsg = `MEX! ${currentPlayer.name} stopt direct.`;
-                 // Check if this is the first player *in the current turn order*
                  if (currentPlayerIndex === 0 && throwsThisTurn < roundThrowsLimit) {
                      roundThrowsLimit = throwsThisTurn;
                      maxWorpenSpan.textContent = roundThrowsLimit;
@@ -782,39 +896,22 @@
                  }
                  mexMsg += ` ${pluralizeSlok(2)} x${multiplier}!`;
                  showTemporaryMessage(mexMsg, 'special');
-
                  endPlayerTurn();
                  return;
             }
 
-            // Normal roll continues - Check if turn ends
             if (throwsThisTurn >= roundThrowsLimit) {
                  endPlayerTurn();
             } else {
-                 // Turn continues - Allow holding based on rules
-                 rollBtn.disabled = false;
+                 mainActionBtn.disabled = false; // Re-enable main button
                  showLowestBtn.disabled = false;
                  allowHolding = true;
 
                  const dieElements = [die1Div, die2Div];
-                 dieElements.forEach( (dieEl, index) => {
-                     const dieValue = currentDice[index];
-                     if (dieValue >= 1 && dieValue <= 3) {
-                         dieEl.classList.add('clickable');
-                         dieEl.classList.remove('cannot-hold');
-                     } else {
-                         dieEl.classList.remove('clickable');
-                         dieEl.classList.add('cannot-hold');
-                     }
+                 dieElements.forEach((dieEl) => {
+                     dieEl.classList.add('clickable'); // Always add clickable class visually
                  });
-
-                 const heldIndex = heldDice.findIndex(h => h);
-                 if (heldIndex !== -1) {
-                     mustThrowHeld = true;
-                     document.getElementById(`die${heldIndex + 1}`).classList.remove('clickable');
-                 } else {
-                     mustThrowHeld = false;
-                 }
+                 console.log("Turn continues. Both dice visually clickable.");
             }
         }
 
@@ -823,7 +920,7 @@
             if ((d1 === 2 && d2 === 1) || (d1 === 1 && d2 === 2)) return { value: 1000, display: "Mex", type: 'mex' };
             if ((d1 === 3 && d2 === 1) || (d1 === 1 && d2 === 3)) return { value: 31, display: "31", type: 'special' };
             if ((d1 === 3 && d2 === 2) || (d1 === 2 && d2 === 3)) return { value: 32, display: "32", type: 'special' };
-            if (d1 === d2) return { value: d1 * 100, display: `${d1}00`, type: 'normal' };
+            if (d1 === d2) return { value: d1 * 100, display: `${d1}${d1}`, type: 'normal' };
             const high = Math.max(d1, d2);
             const low = Math.min(d1, d2);
             return { value: high * 10 + low, display: `${high}${low}`, type: 'normal' };
@@ -836,62 +933,48 @@
             const dieElement = document.getElementById(`die${index + 1}`);
             const dieValue = currentDice[index];
             const otherIndex = 1 - index;
-            const otherDieElement = document.getElementById(`die${otherIndex + 1}`);
-            const otherDieValue = currentDice[otherIndex];
 
-            // Check locking rule: Cannot hold 4, 5, or 6
-            if (dieValue > 3) {
-                 showTemporaryMessage(`Je kunt ${dieValue} niet vasthouden (alleen 1, 2 of 3).`);
-                 dieElement.classList.add('cannot-hold');
-                 setTimeout(() => dieElement.classList.remove('cannot-hold'), 500);
-                 return;
-            }
-
-            // Prevent clicking the die that MUST be thrown
-             if (mustThrowHeld && heldDice[otherIndex]) {
-                showTemporaryMessage("Je moet de niet-vastgehouden dobbelsteen gooien.");
+            if (index === lockedDieIndex) {
+                showTemporaryMessage(`Deze dobbelsteen (${dieValue}) moet nu gooien (was vastgehouden).`);
+                 playSound(soundError);
                 return;
             }
 
-            // Prevent holding both dice
-            if (!heldDice[index] && heldDice[otherIndex]) {
-                 showTemporaryMessage("Je kunt maar één dobbelsteen vasthouden.");
+            if (dieValue > 3) {
+                 showTemporaryMessage(`Je kunt ${dieValue} niet vasthouden (alleen 1, 2 of 3).`);
+                 playSound(soundError);
                  return;
             }
 
-            // Toggle the held state
-            heldDice[index] = !heldDice[index];
-            dieElement.classList.toggle('held', heldDice[index]);
+            if (!heldDice[index] && heldDice[otherIndex]) {
+                 showTemporaryMessage("Je kunt maar één dobbelsteen vasthouden.");
+                 playSound(soundError);
+                 return;
+            }
 
-            // Update clickability and mustThrowHeld status
-            if (heldDice[index]) { // Just held this die
-                mustThrowHeld = true;
-                dieElement.classList.remove('clickable');
-                if (otherDieValue <= 3) {
-                     otherDieElement.classList.add('clickable');
-                     otherDieElement.classList.remove('cannot-hold');
-                 } else {
-                     otherDieElement.classList.remove('clickable');
-                     otherDieElement.classList.add('cannot-hold');
-                 }
-            } else { // Just released this die
-                mustThrowHeld = false;
-                 if (dieValue <= 3) dieElement.classList.add('clickable');
-                 if (otherDieValue <= 3) otherDieElement.classList.add('clickable');
+            heldDice[index] = !heldDice[index];
+            dieElement.classList.toggle('held', heldDice[index]); // Only toggle visual held class
+
+             if (heldDice[index]) {
+                 playSound(soundHoldDie);
+                console.log(`Held die ${index}.`);
+            } else {
+                console.log(`Released die ${index}.`);
             }
         }
+
 
         // --- Turn & Round Ending Logic ---
         function endPlayerTurn() {
             gameState = 'turnOver';
-            rollBtn.textContent = 'Volgende Speler';
-            rollBtn.disabled = false;
+            mainActionBtn.textContent = 'Volgende Speler'; // Set button text
+            mainActionBtn.disabled = false; // Ensure button is clickable to advance
             showLowestBtn.disabled = true;
             allowHolding = false;
-            die1Div.classList.remove('clickable', 'shaking', 'held', 'cannot-hold');
-            die2Div.classList.remove('clickable', 'shaking', 'held', 'cannot-hold');
+            die1Div.classList.remove('shaking', 'held', 'clickable'); // Clean UI
+            die2Div.classList.remove('shaking', 'held', 'clickable');
             heldDice = [false, false];
-            mustThrowHeld = false;
+            lockedDieIndex = null;
 
             const actualPlayerIndex = roundTurnOrder[currentPlayerIndex];
             const finalScoreValue = playerRoundData[actualPlayerIndex].finalThrowValue;
@@ -899,50 +982,45 @@
             const currentScoreDisplay = playerRoundData[actualPlayerIndex].scoreDisplay;
 
             // --- Lowest Score & Overtake Logic ---
-            // Only process if it's a valid final score (not null or special)
             if (finalScoreValue !== null && finalScoreValue !== 31 && finalScoreValue !== 32) {
                  const scoreToCompare = finalScoreValue;
                  const canMexBeLowest = onlyMexRolledSoFar && scoreToCompare === 1000;
 
-                // Is this score lower than the current lowest?
                  if (scoreToCompare < roundLowestScore || (canMexBeLowest && roundLowestScore === Infinity)) {
                      roundLowestScore = scoreToCompare;
-                     roundLowestPlayerIndices = [actualPlayerIndex]; // This player is now lowest
+                     roundLowestPlayerIndices = [actualPlayerIndex];
                      console.log(`New lowest score: ${currentScoreDisplay} by ${currentPlayerName}`);
                  }
-                 // Does this score tie the current lowest?
                  else if (scoreToCompare === roundLowestScore) {
-                     // Only trigger overtake/tie logic if this player wasn't already lowest
                      if (!roundLowestPlayerIndices.includes(actualPlayerIndex)) {
-                         const previousLowestPlayerIndex = roundLowestPlayerIndices[0]; // Index of who WAS lowest
+                         const previousLowestPlayerIndex = roundLowestPlayerIndices[0];
 
-                         // --- Overtake Action ---
-                         // Calculate drinks NOW based on current multiplier
                          const drinksForThisOvertake = 1 * Math.pow(2, mexCountThisRound);
-                         // Add/update entry in the map for the player who WAS lowest
                          const currentOvertakeDrinks = overtakenPlayersMap.get(previousLowestPlayerIndex) || 0;
                          overtakenPlayersMap.set(previousLowestPlayerIndex, currentOvertakeDrinks + drinksForThisOvertake);
                          console.log(`Player ${previousLowestPlayerIndex} overtaken, owes ${overtakenPlayersMap.get(previousLowestPlayerIndex)} drinks`);
 
-                         // Current player takes over the lowest spot
-                         roundLowestPlayerIndices = [actualPlayerIndex];
+                         roundLowestPlayerIndices = [actualPlayerIndex]; // Current player takes over
 
                          showTemporaryMessage(`${currentPlayerName} (${currentScoreDisplay}) evenaart laagste! ${playerRoundData[previousLowestPlayerIndex]?.name || 'Iemand'} moet extra drinken!`, 'special');
                          console.log(`${currentPlayerName} overtakes/ties lowest score ${currentScoreDisplay} from ${playerRoundData[previousLowestPlayerIndex]?.name || 'Previous'}`);
                      }
-                     // If player already holds/shares lowest, do nothing new regarding overtake.
                  }
             }
 
             // --- End Turn Message ---
             if (!messageAreaDiv.classList.contains('visible')) {
                  const displayScore = currentScoreDisplay || "Geen score";
+                 // Use the main button now
                 showTemporaryMessage(`Beurt van ${currentPlayerName} (${displayScore}) is klaar. Klik 'Volgende Speler'.`);
             }
+            // No need to set gameState again here, it's set at the top
         }
 
 
         function advanceToNext() {
+             // Called by the main action button when in 'turnOver' state
+             hideMessage(); // Hide the "turn over" message
             currentPlayerIndex++;
             if (currentPlayerIndex < roundTurnOrder.length) {
                 setupPlayerTurn();
@@ -953,36 +1031,117 @@
 
         function endRound() {
             gameState = 'roundOver';
-            rollBtn.disabled = true;
-            rollBtn.textContent = "Ronde Klaar";
+            mainActionBtn.disabled = true; // Disable the main button
+            mainActionBtn.textContent = "Ronde Klaar"; // Update text
             showLowestBtn.disabled = true;
             hideMessage();
+            playSound(soundRoundEnd);
+
+            // --- Hide Game Elements ---
+            diceContainer.style.display = 'none';
+            spelInfoDiv.style.display = 'none';
+            scoreDisplayDiv.style.display = 'none';
+            actieKnoppenDiv.style.display = 'none'; // Hide the button container
 
             let drinksMultiplier = Math.pow(2, mexCountThisRound);
             let actionMessages = [];
-            let scoreHTML = "<strong>Scores</strong><br>";
-            let actualRoundLowestNormalScoreValue = Infinity; // Track lowest NORMAL score value
-            let lowestScoreDisplayValue = null; // Display string of lowest NORMAL score
+            let scoreHTML = "<strong>Worpgeschiedenis:</strong><br>";
+            let actualRoundLowestNormalScoreValue = Infinity;
+            let lowestScoreDisplayValue = null;
 
-            // --- Pass 1: Build Score Display HTML (in Turn Order) & Find Lowest Actual Normal Score ---
+             // --- Calculate Drinks & Actions ---
+            // 1. Process 31/32 drinks
+            playerRoundData.forEach((data) => {
+                 if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (door 31).`);
+                 if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} zelf (door 32).`);
+             });
+
+            // 2. Process Accumulated Overtake Drinks
+            if (overtakenPlayersMap.size > 0) {
+                overtakenPlayersMap.forEach((totalOvertakeDrinks, playerIndex) => {
+                    if (playerRoundData[playerIndex]) {
+                        const overtakenPlayerName = playerRoundData[playerIndex].name;
+                        const overtakenScoreApprox = playerRoundData[playerIndex].scoreDisplay || '?';
+                        actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (score ${overtakenScoreApprox} ingehaald!).`);
+                        playerRoundData[playerIndex].drinksToTake += totalOvertakeDrinks;
+                    } else {
+                         console.error("Overtaken player index out of bounds:", playerIndex);
+                    }
+                });
+            }
+
+            // 3. Process Lowest Score Penalty
+            if (roundLowestPlayerIndices.length > 0 && roundLowestScore !== Infinity) {
+                 const drinksForLowest = 1 * drinksMultiplier;
+                 const lowestPlayersForPenalty = [];
+                 const lowestPlayerIndicesForPenalty = [];
+
+                 let displayScoreForMsg = "";
+                  if (roundLowestScore === 1000) {
+                      displayScoreForMsg = "Mex";
+                  } else {
+                       for(let i = 0; i < playerRoundData.length; i++) {
+                           const pData = playerRoundData[i];
+                           const finalThrow = pData.throwsHistory.slice().reverse().find(t => t.scoreResult.type !== 'special');
+                           if(finalThrow && finalThrow.scoreResult.type === 'normal' && finalThrow.scoreResult.value === roundLowestScore) {
+                               lowestScoreDisplayValue = finalThrow.scoreResult.display;
+                               displayScoreForMsg = lowestScoreDisplayValue;
+                               break;
+                           }
+                       }
+                       if (!displayScoreForMsg) displayScoreForMsg = roundLowestScore.toString();
+                   }
+
+
+                 roundLowestPlayerIndices.forEach(index => {
+                     if (!overtakenPlayersMap.has(index)) {
+                         if (playerRoundData[index]) {
+                             playerRoundData[index].drinksToTake += drinksForLowest;
+                             lowestPlayersForPenalty.push(`<strong>${playerRoundData[index].name}</strong>`);
+                             lowestPlayerIndicesForPenalty.push(index);
+                         }
+                     }
+                 });
+
+                 if (lowestPlayersForPenalty.length > 0) {
+                     if (lowestPlayersForPenalty.length === 1) {
+                         actionMessages.push(`${lowestPlayersForPenalty[0]} heeft de laagste score (${displayScoreForMsg}) en drinkt ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+                     } else {
+                         actionMessages.push(`Gelijkspel laagste score (${displayScoreForMsg}): ${lowestPlayersForPenalty.join(', ')} drinken elk ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+                     }
+                 }
+            }
+            else if (roundLowestScore === Infinity && overtakenPlayersMap.size === 0) {
+                 actionMessages.push("Geen geldige laagste score bepaald deze ronde.");
+            }
+
+
+            // --- Build Action Display HTML ---
+             let actionsHTML = "<strong class='actions-section'>Acties & Drankjes (Einde Ronde):</strong><br>";
+             actionsHTML += '<div class="actions-section">';
+             actionsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
+             if (mexCountThisRound > 0) {
+                  const mexWord = numberToWord(mexCountThisRound);
+                 actionsHTML += `<br><em>(${pluralizeSlok(2)} voor laagste/overname x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
+             }
+             actionsHTML += '</div>';
+            resultatenActiesDiv.innerHTML = actionsHTML; // RENDER ACTIONS FIRST
+
+
+            // --- Build and Render Score History HTML (in Turn Order) ---
             for (let i = 0; i < roundTurnOrder.length; i++) {
                  const actualPlayerIndex = roundTurnOrder[i];
                  const data = playerRoundData[actualPlayerIndex];
 
                  scoreHTML += `<div class="score-section">`;
                  scoreHTML += `<strong class="player-name">${data.name}:</strong>`;
-                 scoreHTML += `<span class="throw-history" data-player-index="${data.id}">`; // Use original ID for data attr
+                 scoreHTML += `<span class="throw-history" data-player-index="${data.id}">`;
 
                  let finalThrowIndex = -1;
                  if (data.throwsHistory.length > 0) {
                      for(let j = data.throwsHistory.length - 1; j >= 0; j--) {
-                         const throwRes = data.throwsHistory[j].scoreResult;
-                         if(throwRes.type !== 'special') {
+                         if(data.throwsHistory[j].scoreResult.type !== 'special') {
                              finalThrowIndex = j;
-                             if(throwRes.type === 'normal' && throwRes.value < actualRoundLowestNormalScoreValue) {
-                                 actualRoundLowestNormalScoreValue = throwRes.value;
-                                 lowestScoreDisplayValue = throwRes.display;
-                             }
                              break;
                          }
                      }
@@ -999,11 +1158,12 @@
                  }
                  scoreHTML += `</span></div>`;
              }
-            resultatenScoresDiv.innerHTML = scoreHTML;
+            resultatenScoresDiv.innerHTML = scoreHTML; // RENDER HISTORY SECOND
 
-             // --- Pass 2: Highlight Final Lowest NORMAL Scores ---
+
+             // --- Highlight Lowest Scores in Rendered History ---
              if (lowestScoreDisplayValue !== null && roundLowestScore !== 1000) {
-                  roundLowestPlayerIndices.forEach(playerIndex => { // Use the FINAL list
+                  roundLowestPlayerIndices.forEach(playerIndex => {
                       const playerHistorySpan = resultatenScoresDiv.querySelector(`.throw-history[data-player-index="${playerIndex}"]`);
                       if (playerHistorySpan) {
                           const finalThrowSpan = playerHistorySpan.querySelector('.final-throw');
@@ -1014,77 +1174,11 @@
                   });
              }
 
-            // --- Calculate Drinks and Actions ---
-            // 1. Process 31/32 drinks
-            playerRoundData.forEach((data) => {
-                 if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (door 31).`);
-                 if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} zelf (door 32).`);
-             });
-
-            // 2. Process Accumulated Overtake Drinks
-            if (overtakenPlayersMap.size > 0) {
-                overtakenPlayersMap.forEach((totalOvertakeDrinks, playerIndex) => {
-                    if (playerRoundData[playerIndex]) { // Ensure player data exists
-                        const overtakenPlayerName = playerRoundData[playerIndex].name;
-                        const overtakenScore = playerRoundData[playerIndex].scoreDisplay; // Score they were holding when overtaken
-                        actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (score ${overtakenScore || ''} overgenomen).`);
-                        playerRoundData[playerIndex].drinksToTake += totalOvertakeDrinks;
-                    }
-                });
-            }
-
-            // 3. Process Lowest Score Penalty (only for those NOT penalized by overtake)
-            if (roundLowestPlayerIndices.length > 0 && roundLowestScore !== Infinity) {
-                 const drinksForLowest = 1 * drinksMultiplier;
-                 const lowestPlayersNotOvertaken = []; // Store names of those getting lowest penalty
-                 const lowestPlayerIndicesNotOvertaken = []; // Store indices
-
-                 roundLowestPlayerIndices.forEach(index => {
-                     // Assign drinks ONLY if this player was NOT penalized via the overtake map
-                     if (!overtakenPlayersMap.has(index)) {
-                         if (playerRoundData[index]) {
-                             playerRoundData[index].drinksToTake += drinksForLowest;
-                             lowestPlayersNotOvertaken.push(`<strong>${playerRoundData[index].name}</strong>`);
-                             lowestPlayerIndicesNotOvertaken.push(index);
-                         }
-                     }
-                 });
-
-                 // Generate message only if there are players penalized for being lowest (and not overtaken)
-                 if (lowestPlayersNotOvertaken.length > 0) {
-                     let displayScoreForMsg = "";
-                     if (roundLowestScore === 1000) displayScoreForMsg = "Mex";
-                     else if (lowestScoreDisplayValue) displayScoreForMsg = lowestScoreDisplayValue;
-                     else displayScoreForMsg = roundLowestScore; // Fallback
-
-                     if (lowestPlayersNotOvertaken.length === 1) {
-                         actionMessages.push(`${lowestPlayersNotOvertaken[0]} heeft de laagste score (${displayScoreForMsg}) en drinkt ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
-                     } else {
-                         actionMessages.push(`Gelijkspel laagste score (${displayScoreForMsg}): ${lowestPlayersNotOvertaken.join(', ')} drinken elk ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
-                     }
-                 }
-            }
-            // Handle case where no valid scores were thrown
-            else if (roundLowestScore === Infinity && overtakenPlayersMap.size === 0) {
-                 actionMessages.push("Geen geldige laagste score bepaald deze ronde.");
-            }
-
-            // --- Build Action Display ---
-             let actionsHTML = "<strong class='actions-section'>Acties & Drankjes</strong><br>";
-             actionsHTML += '<div class="actions-section">';
-             actionsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
-             if (mexCountThisRound > 0) {
-                  const mexWord = numberToWord(mexCountThisRound);
-                 actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
-             }
-             actionsHTML += '</div>';
-            resultatenActiesDiv.innerHTML = actionsHTML;
 
             // --- Prepare for Next Round ---
-            // Save the indices of players who finished with the lowest score
             lastRoundLowestIndices = roundLowestPlayerIndices.length > 0 ? [...roundLowestPlayerIndices] : [];
 
-            // Show results and enable next round
+            // Show results container and enable next round button
             rondeResultatenDiv.style.display = 'block';
             nextRoundBtn.disabled = false;
         }
@@ -1092,23 +1186,23 @@
 
         // --- Utility Functions ---
         function showLowestScoreInfo() {
-            if (roundLowestScore === Infinity) {
+             playSound(soundButtonClick); // Play sound
+             if (roundLowestScore === Infinity) {
                 showTemporaryMessage("Nog geen laagste score bepaald in deze ronde.");
             } else {
                  let lowestScoreDisplay;
                  if (roundLowestScore === 1000) {
                      lowestScoreDisplay = "Mex";
                  } else if (roundLowestPlayerIndices.length > 0 && playerRoundData[roundLowestPlayerIndices[0]]) {
-                     // Try to find the *actual* display value from the history of the first lowest player
                      const firstLowestPlayer = playerRoundData[roundLowestPlayerIndices[0]];
                      const lastValidThrow = firstLowestPlayer.throwsHistory.slice().reverse().find(t => t.scoreResult.type !== 'special');
                       if(lastValidThrow && lastValidThrow.scoreResult.value === roundLowestScore){
                           lowestScoreDisplay = lastValidThrow.scoreResult.display;
                       } else {
-                           lowestScoreDisplay = roundLowestScore.toString(); // Fallback
+                           lowestScoreDisplay = roundLowestScore.toString();
                       }
                  } else {
-                      lowestScoreDisplay = roundLowestScore.toString(); // Fallback
+                      lowestScoreDisplay = roundLowestScore.toString();
                  }
 
                  const lowestPlayerNames = roundLowestPlayerIndices.map(i => playerRoundData[i]?.name || 'Onbekend').join(', ');
@@ -1122,8 +1216,6 @@
             if (type === 'special') {
                 messageAreaDiv.classList.add('special');
             }
-            // Optional: Auto-hide after a delay
-            // setTimeout(hideMessage, 5000);
         }
 
         function hideMessage() {
