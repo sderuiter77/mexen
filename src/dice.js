@@ -31,81 +31,83 @@ function handleRollResultLogic() {
     const actualPlayerIndex = roundTurnOrder[currentPlayerIndex];
     const currentPlayer = playerRoundData[actualPlayerIndex];
 
-     currentPlayer.throwsHistory.push({
-         scoreResult: { ...currentScoreResult }
-     });
+    if (currentPlayer) {
+        currentPlayer.throwsHistory.push({
+            scoreResult: { ...currentScoreResult }
+        });
 
-    if (currentScoreResult.type === 'special') {
-         const drinksNow = 1 * Math.pow(2, mexCountThisRound);
-         const slokText = pluralizeSlok(drinksNow);
-         if (currentScoreResult.value === 31) {
-            showTemporaryMessage(`31! Deel ${drinksNow} ${slokText} uit.`);
-            currentPlayer.drinksGivenFrom31 += drinksNow;
-        } else if (currentScoreResult.value === 32) {
-            showTemporaryMessage(`32! Drink ${drinksNow} ${slokText} zelf.`);
-            currentPlayer.drinksTakenFrom32 += drinksNow;
+        if (currentScoreResult.type === 'special') {
+            const drinksNow = 1 * Math.pow(2, mexCountThisRound);
+            const slokText = pluralizeSlok(drinksNow);
+            if (currentScoreResult.value === 31) {
+                showTemporaryMessage(`31! Deel ${drinksNow} ${slokText} uit.`);
+                currentPlayer.drinksGivenFrom31 += drinksNow;
+            } else if (currentScoreResult.value === 32) {
+                showTemporaryMessage(`32! Drink ${drinksNow} ${slokText} zelf.`);
+                currentPlayer.drinksTakenFrom32 += drinksNow;
+            }
+            heldDice = [false, false];
+            lockedDieIndex = null;
+            allowHolding = false;
+            die1Div.classList.remove('held', 'clickable');
+            die2Div.classList.remove('held', 'clickable');
+            mainActionBtn.disabled = false; // Re-enable main button
+            showLowestBtn.disabled = false;
+            return;
         }
-        heldDice = [false, false];
-        lockedDieIndex = null;
-        allowHolding = false;
-        die1Div.classList.remove('held', 'clickable');
-        die2Div.classList.remove('held', 'clickable');
-        mainActionBtn.disabled = false; // Re-enable main button
-        showLowestBtn.disabled = false;
-        return;
-    }
 
-    throwsThisTurn++;
-    worpTellerSpan.textContent = throwsThisTurn;
+        throwsThisTurn++;
+        worpTellerSpan.textContent = throwsThisTurn;
 
-     currentPlayer.finalThrowValue = currentScoreResult.value;
-     currentPlayer.scoreDisplay = currentScoreResult.display;
+        currentPlayer.finalThrowValue = currentScoreResult.value;
+        currentPlayer.scoreDisplay = currentScoreResult.display;
 
-     if (currentScoreResult.type === 'normal') {
-         onlyMexRolledSoFar = false;
-     }
+        if (currentScoreResult.type === 'normal') {
+            onlyMexRolledSoFar = false;
+        }
 
-    heldDice = [false, false]; // Reset logical hold
-    die1Div.classList.remove('held'); // Remove visual hold
-    die2Div.classList.remove('held');
+        heldDice = [false, false]; // Reset logical hold
+        die1Div.classList.remove('held'); // Remove visual hold
+        die2Div.classList.remove('held');
 
 
-    if (heldIndexBeforeRoll !== -1) {
-         lockedDieIndex = heldIndexBeforeRoll; // Lock the held die
-         console.log(`Die ${lockedDieIndex} is now locked for next hold.`);
-     } else {
-         lockedDieIndex = null;
-         console.log("No die locked for next hold.");
-     }
+        if (heldIndexBeforeRoll !== -1) {
+            lockedDieIndex = heldIndexBeforeRoll; // Lock the held die
+            console.log(`Die ${lockedDieIndex} is now locked for next hold.`);
+        } else {
+            lockedDieIndex = null;
+            console.log("No die locked for next hold.");
+        }
 
 
-    if (currentScoreResult.type === 'mex') {
-         mexCountThisRound++;
-         const multiplier = Math.pow(2, mexCountThisRound);
-         let mexMsg = `MEX! ${currentPlayer.name} stopt direct.`;
-         if (currentPlayerIndex === 0 && throwsThisTurn < roundThrowsLimit) {
-             roundThrowsLimit = throwsThisTurn;
-             maxWorpenSpan.textContent = roundThrowsLimit;
-             mexMsg += ` Nieuwe limiet: ${roundThrowsLimit} worp${roundThrowsLimit === 1 ? '' : 'en'}.`;
-         }
-         mexMsg += ` ${pluralizeSlok(2)} x${multiplier}!`;
-         showTemporaryMessage(mexMsg, 'special');
-         endPlayerTurn();
-         return;
-    }
+        if (currentScoreResult.type === 'mex') {
+            mexCountThisRound++;
+            const multiplier = Math.pow(2, mexCountThisRound);
+            let mexMsg = `MEX! ${currentPlayer.name} stopt direct.`;
+            if (currentPlayerIndex === 0 && throwsThisTurn < roundThrowsLimit) {
+                roundThrowsLimit = throwsThisTurn;
+                maxWorpenSpan.textContent = roundThrowsLimit;
+                mexMsg += ` Nieuwe limiet: ${roundThrowsLimit} worp${roundThrowsLimit === 1 ? '' : 'en'}.`;
+            }
+            mexMsg += ` ${pluralizeSlok(2)} x${multiplier}!`;
+            showTemporaryMessage(mexMsg, 'special');
+            endPlayerTurn();
+            return;
+        }
 
-    if (throwsThisTurn >= roundThrowsLimit) {
-         endPlayerTurn();
-    } else {
-         mainActionBtn.disabled = false; // Re-enable main button
-         showLowestBtn.disabled = false;
-         allowHolding = true;
+        if (throwsThisTurn >= roundThrowsLimit) {
+            endPlayerTurn();
+        } else {
+            mainActionBtn.disabled = false; // Re-enable main button
+            showLowestBtn.disabled = false;
+            allowHolding = true;
 
-         const dieElements = [die1Div, die2Div];
-         dieElements.forEach((dieEl) => {
-             dieEl.classList.add('clickable'); // Always add clickable class visually
-         });
-         console.log("Turn continues. Both dice visually clickable.");
+            const dieElements = [die1Div, die2Div];
+            dieElements.forEach((dieEl) => {
+                dieEl.classList.add('clickable'); // Always add clickable class visually
+            });
+            console.log("Turn continues. Both dice visually clickable.");
+        }
     }
 }
 

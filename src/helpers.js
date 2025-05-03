@@ -32,7 +32,7 @@ function hideMessage() {
     messageAreaDiv.className = 'message-area';
 }
 
-function handleBackgroundClick() {
+function handleBackgroundClick(event) {
     // Only trigger roll if game is in 'playing' state AND main button is enabled
     if (gameState === 'playing' && !mainActionBtn.disabled) {
         const target = event.target;
@@ -40,9 +40,10 @@ function handleBackgroundClick() {
         const isMainActionButton = target.closest('#main-action-btn'); // Check main button
         const isShowLowestButton = target.closest('#show-lowest-btn');
         const isResultsArea = target.closest('#ronde-resultaten');
+        const isSettingsButton = target.closest('#settings-button'); // Check settings button
 
         // Trigger roll only if not clicking on interactive elements
-        if (!isDie && !isMainActionButton && !isShowLowestButton && !isResultsArea) {
+        if (!isDie && !isMainActionButton && !isShowLowestButton && !isResultsArea && !isSettingsButton) {
             console.log("Background click triggered roll");
             startRollAnimation();
         }

@@ -58,6 +58,7 @@
         <div id="actie-knoppen">
             <button id="main-action-btn" disabled>Gooi</button>
             <button id="show-lowest-btn">Toon Laagste</button>
+            <button id="settings-button"><img src="images/gear-icon.png" alt="Settings" /></button>
         </div>
         <!-- End elements to hide/show -->
 
@@ -76,6 +77,16 @@
     <audio id="sound-dice-roll" src="sounds/DiceRoll.wav" preload="auto"></audio>
     <audio id="sound-show-lowest" src="sounds/ShowLowestScore.wav"></audio> <!-- Specific sound -->
 
+    <!-- Settings Menu Overlay -->
+    <div id="settings-menu" class="settings-menu-overlay">
+        <div class="settings-menu-content">
+            <h2>Settings</h2>
+            <input type="text" id="settings-player-input" placeholder="Naam speler">
+            <button id="settings-add-player-btn">Voeg Toe</button>
+            <ul id="settings-player-list"></ul>
+            <button id="save-settings-button">Opslaan</button>
+        </div>
+    </div>
 
     <script defer src="src/globals.js"></script>
     <script defer src="src/helpers.js"></script>

@@ -9,3 +9,8 @@ showLowestBtn.addEventListener('click', showLowestScoreInfo); // Sound added in 
 die1Div.addEventListener('click', () => handleDieClick(0));
 die2Div.addEventListener('click', () => handleDieClick(1));
 spelFaseDiv.addEventListener('click', handleBackgroundClick);
+
+// Settings Listeners
+settingsButton.addEventListener('click', showSettingsMenu);
+saveSettingsButton.addEventListener('click', hideSettingsMenu);
+settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);

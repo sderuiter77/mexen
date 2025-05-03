@@ -14,7 +14,6 @@ function startNewRound() {
    scoreDisplayDiv.style.display = 'block';
    actieKnoppenDiv.style.display = 'flex'; // Show container for buttons
 
-
    currentRound++;
    rondeTitel.textContent = `Ronde ${currentRound}`;
    roundThrowsLimit = 3;
@@ -25,60 +24,96 @@ function startNewRound() {
    overtakenPlayersMap = new Map();
    lockedDieIndex = null;
 
-   // Determine Turn Order (remains the same)
+    // Filter out inactive players
+    const activePlayers = players.filter(player => player.active);
+
+    // Update the players array with only active players
+    players = activePlayers;
+
+    // Update playerRoundData to only include active players
+        playerRoundData = activePlayers.map((p, index) => ({
+            name: p.name,
+            id: index,
+            scoreDisplay: null,
+            drinksToTake: 0,
+            finalThrowValue: null,
+            throwsHistory: [],
+            drinksGivenFrom31: 0,
+            drinksTakenFrom32: 0,
+            isActive: true // All players are active at the start of the round
+        }));
+
+   // Determine Turn Order with active players only
    roundTurnOrder = [];
-    if (lastRoundLowestIndices.length > 0) {
-        const startingPlayerIndex = lastRoundLowestIndices[0];
-        roundTurnOrder.push(startingPlayerIndex);
-        let currentIndex = (startingPlayerIndex + 1) % players.length;
-        while (roundTurnOrder.length < players.length) {
-            if (!lastRoundLowestIndices.includes(currentIndex)) {
-                roundTurnOrder.push(currentIndex);
-            }
-             if (currentIndex === startingPlayerIndex && roundTurnOrder.length < players.length) {
-                  lastRoundLowestIndices.slice(1).forEach(idx => {
-                      if (!roundTurnOrder.includes(idx)) {
-                          roundTurnOrder.push(idx);
-                      }
-                  });
-                 if(roundTurnOrder.length < players.length) {
-                     console.error("Error building turn order, potential infinite loop");
-                     for(let pIdx = 0; pIdx < players.length; pIdx++) {
-                         if (!roundTurnOrder.includes(pIdx)) roundTurnOrder.push(pIdx);
-                     }
-                 }
-                break;
-             }
-            currentIndex = (currentIndex + 1) % players.length;
-        }
-         if (roundTurnOrder.length !== players.length) {
-              console.warn("Turn order correction: Adding missing players");
-               for(let pIdx = 0; pIdx < players.length; pIdx++) {
-                         if (!roundTurnOrder.includes(pIdx)) roundTurnOrder.push(pIdx);
-                }
-         }
+   if (lastRoundLowestIndices.length > 0) {
+       // Filter out any indices that are no longer active players
+       const activeLowestIndices = lastRoundLowestIndices.filter(idx => 
+           players[idx] && players[idx].active !== false);
+       
+       if (activeLowestIndices.length > 0) {
+           const startingPlayerIndex = activeLowestIndices[0];
+           roundTurnOrder.push(startingPlayerIndex);
+           
+           // Add remaining active players in circular order
+           let addedCount = 1;
+           let currentIndex = (startingPlayerIndex + 1) % players.length;
+           
+           while (addedCount < players.length) {
+               // Skip inactive players
+               if (players[currentIndex] && players[currentIndex].active !== false) {
+                   if (!activeLowestIndices.includes(currentIndex) || 
+                       (activeLowestIndices.includes(currentIndex) && !roundTurnOrder.includes(currentIndex))) {
+                       roundTurnOrder.push(currentIndex);
+                       addedCount++;
+                   }
+               }
+               
+               // Check if we need to add remaining lowest players
+               if (currentIndex === startingPlayerIndex && addedCount < players.length) {
+                   activeLowestIndices.slice(1).forEach(idx => {
+                       if (!roundTurnOrder.includes(idx)) {
+                           roundTurnOrder.push(idx);
+                           addedCount++;
+                       }
+                   });
+               }
+               
+               currentIndex = (currentIndex + 1) % players.length;
+               
+               // Safety check to prevent infinite loops
+               if (addedCount >= players.length) break;
+           }
+       } else {
+           // If no active lowest indices, just use all active player indices
+           roundTurnOrder = [...Array(players.length).keys()];
+       }
    } else {
-       roundTurnOrder = players.map((_, index) => index);
+       // Initial round: just use all active player indices
+        roundTurnOrder = [...Array(players.length).keys()];
    }
+   
+   // Ensure all active players are included in the turn order
+   if (roundTurnOrder.length !== players.length) {
+       console.warn("Turn order correction: Adding missing active players");
+        for (let i = 0; i < players.length; i++) {
+            if (!roundTurnOrder.includes(i)) {
+                roundTurnOrder.push(i);
+            }
+        }
+   }
+   
    console.log("New Round Turn Order (indices):", roundTurnOrder);
 
-
-   // Reset round data
-   playerRoundData = players.map((p, index) => ({
-       name: p.name,
-       id: index,
-       scoreDisplay: null,
-       drinksToTake: 0,
-       finalThrowValue: null,
-       throwsHistory: [],
-       drinksGivenFrom31: 0,
-       drinksTakenFrom32: 0
-   }));
+   // If no active players remain, handle the edge case
+   if (roundTurnOrder.length === 0) {
+       console.warn("No active players remain in the game!");
+       // You might want to add handling for this case - perhaps end the game?
+       return;
+   }
 
    currentPlayerIndex = 0;
    setupPlayerTurn();
 }
-
 
 function endRound() {
     gameState = 'roundOver';
@@ -104,10 +139,11 @@ function endRound() {
 
      // --- Calculate Drinks & Actions ---
     // 1. Process 31/32 drinks
-    playerRoundData.forEach((data) => {
-         if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (31).`);
-         if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} (32).`);
-     });
+    playerRoundData.forEach((data, playerIndex) => {
+        if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (31).`);
+        if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} (32).`);
+
+    });
 
     // 2. Process Accumulated Overtake Drinks
     if (overtakenPlayersMap.size > 0) {
@@ -126,8 +162,6 @@ function endRound() {
     // 3. Process Lowest Score Penalty
     if (roundLowestPlayerIndices.length > 0 && roundLowestScore !== Infinity) {
          drinksForLowest = 1 * drinksMultiplier; // Calculate penalty drinks here
-         //lowestPlayersForPenalty = []; // Already initialized above
-         //lowestPlayerIndicesForPenalty = []; // Already initialized above
 
          let displayScoreForMsg = "";
           if (roundLowestScore === 1000) {
@@ -175,7 +209,7 @@ function endRound() {
      actionsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
      if (mexCountThisRound > 0) {
           const mexWord = numberToWord(mexCountThisRound);
-         actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
+         actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? '' : 'en'})</em>`;
      }
      actionsHTML += '</div>';
     resultatenActiesDiv.innerHTML = actionsHTML; // RENDER ACTIONS FIRST
@@ -256,13 +290,17 @@ function endRound() {
     rondeResultatenDiv.classList.add('showing-results');
     // --- END: Add logic for lowest score announcement ---
 
+    // --- Insert and show Next Round Button ---
+    rondeResultatenDiv.insertBefore(nextRoundBtn, resultatenScoresDiv); // Insert before score details
+    nextRoundBtn.style.display = 'block'; // Make the button visible
+    nextRoundBtn.disabled = false; // Enable the button
+
 
     // --- Prepare for Next Round ---
     lastRoundLowestIndices = roundLowestPlayerIndices.length > 0 ? [...lowestPlayerIndicesForPenalty] : []; // Use the indices of those actually penalized
 
 
-    // Show results container and enable next round button (existing lines)
+    // Show results container (existing line)
     rondeResultatenDiv.style.display = 'block';
-    nextRoundBtn.disabled = false;
 } // End of endRound function
 

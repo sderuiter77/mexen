@@ -14,6 +14,7 @@ let roundTurnOrder = [];
 let currentPlayerIndex = 0;
 let lastRoundLowestIndices = [];
 let overtakenPlayersMap = new Map();
+
 // Current Turn State
 let throwsThisTurn = 0;
 let currentDice = [0, 0];
@@ -48,6 +49,14 @@ const diceContainer = document.querySelector('.dice-container');
 const spelInfoDiv = document.getElementById('spel-info');
 const actieKnoppenDiv = document.getElementById('actie-knoppen');
 const setupFaseDiv = document.getElementById('setup-fase');
+
+// Settings DOM Elements
+const settingsButton = document.getElementById('settings-button');
+const settingsMenu = document.getElementById('settings-menu');
+const saveSettingsButton = document.getElementById('save-settings-button');
+const settingsPlayerList = document.getElementById('settings-player-list');
+const settingsPlayerInput = document.getElementById('settings-player-input');
+const settingsAddPlayerBtn = document.getElementById('settings-add-player-btn');
 
 // Sound Element References
 const soundDiceRoll = document.getElementById('sound-dice-roll');

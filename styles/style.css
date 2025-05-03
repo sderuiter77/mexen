@@ -120,7 +120,62 @@ h3 { font-size: 1.3em; }
     transform: scale(1.02);
 }
 
-#spel-fase { display: none; flex-direction: column; align-items: center; }
+/* Spel Fase - Added position: relative for settings button positioning */
+#spel-fase { display: none; flex-direction: column; align-items: center; position: relative; }
+
+/* Settings Button - Modified to be just the icon */
+#settings-button {
+    background-image: linear-gradient(to bottom, var(--secondary-color), #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.0em;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: background-image 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
+    box-shadow: 0 3px 8px rgba(52, 152, 219, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+        position: absolute;
+    top: 15px; /* Adjust as needed */
+    right: 15px; /* Adjust as needed */
+    width: 50px; /* Set size of the clickable area */
+    height: 50px; /* Set size of the clickable area */
+    padding: 0; /* Remove padding */
+    display: flex; /* Use flexbox to center icon */
+    justify-content: center; /* Center icon horizontally */
+    align-items: center; /* Center icon vertically */
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    border-radius: 0; /* Remove border radius */
+    box-shadow: none; /* Remove box shadow */
+    cursor: pointer; /* Indicate it's clickable */
+    z-index: 10; /* Ensure it's above other content */
+    transition: transform 0.2s ease; /* Add transition for hover effect */
+}
+
+/* Remove default button hover/active effects */
+#settings-button:hover:not(:disabled) {
+    transform: scale(1.1); /* Slightly enlarge on hover */
+    background: none;
+    box-shadow: none;
+}
+
+#settings-button:active:not(:disabled) {
+    transform: scale(0.95); /* Slightly shrink on click */
+    box-shadow: none;
+}
+
+#settings-button img {
+    display: block; /* Remove extra space below image */
+    width: 100%; /* Make image fill the button size */
+    height: 100%; /* Make image fill the button size */
+    object-fit: contain; /* Ensure the image fits without distortion */
+}
+
+
 #spel-info {
    width: 100%; display: flex; justify-content: space-between;
    align-items: center; margin-bottom: 10px; padding: 0 5px;
@@ -262,7 +317,7 @@ button:disabled {
 }
 #actie-knoppen button {
     width: auto;
-    min-width: 150px;
+    min-width: 50px;
 }
 
 
@@ -360,6 +415,48 @@ button:disabled {
    margin-top: 10px;
    font-size: 0.9em;
    color: #bdc3c7;
+}
+
+/* --- Settings Menu Styling --- */
+.settings-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100; /* Above all other content */
+    visibility: hidden; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.settings-menu-overlay.visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.settings-menu-content {
+    background-color: var(--light-text);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    position: relative; /* Needed for potential positioning inside */
+}
+
+.settings-menu-content h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.settings-menu-content button {
+    margin-top: 20px;
 }
 
 /* --- Shake Animation --- */

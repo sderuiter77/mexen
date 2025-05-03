@@ -1,7 +1,7 @@
 function addPlayer() {
     const playerName = playerInput.value.trim();
     if (playerName && players.length < 10) {
-        players.push({ name: playerName });
+        players.push({ name: playerName, active: true });
         playerInput.value = '';
         updatePlayerList();
         checkStartGameButton();

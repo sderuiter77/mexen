@@ -1,7 +1,49 @@
 function setupPlayerTurn() {
+     // --- Safety Check: Ensure currentPlayerIndex is within bounds ---
+    if (currentPlayerIndex < 0 || currentPlayerIndex >= roundTurnOrder.length) {
+        console.error("currentPlayerIndex is out of bounds!");
+        // Corrective action: Reset to 0 or start new round. Adjust as needed.
+        currentPlayerIndex = 0;
+        if (roundTurnOrder.length === 0) {
+             console.warn("No players in roundTurnOrder, starting new round.");
+             startNewRound();
+             return; // Exit to prevent further errors
+        }
+    }
+
+
     gameState = 'playing';
     const actualPlayerIndex = roundTurnOrder[currentPlayerIndex];
+
+     // --- Additional Safety Check: Ensure actualPlayerIndex is within playerRoundData bounds ---
+    if (!playerRoundData || actualPlayerIndex < 0 || actualPlayerIndex >= playerRoundData.length) {
+        console.error("actualPlayerIndex is out of bounds for playerRoundData!");
+        console.error("actualPlayerIndex:", actualPlayerIndex, "currentPlayerIndex:", currentPlayerIndex, "roundTurnOrder:", roundTurnOrder, "playerRoundData", playerRoundData);
+         // Corrective action:  Try to recover by adjusting currentPlayerIndex or starting a new round
+         if (playerRoundData && playerRoundData.length > 0) {
+              currentPlayerIndex = 0; // Reset to the first player if possible
+              setupPlayerTurn(); // Re-run the setup with corrected index
+         } else {
+              console.warn("No player data available. Starting a new round.");
+              startNewRound();
+         }
+        return;
+    }
+
     const currentPlayer = playerRoundData[actualPlayerIndex];
+     // --- Skip Inactive Players ---
+    if (!currentPlayer.isActive) {
+        console.log("Skipping inactive player.");
+        advanceToNext();
+        return; // Skip the rest of the function
+    }
+
+    
+     if (!currentPlayer) {
+          console.error("currentPlayer is undefined. actualPlayerIndex:", actualPlayerIndex, "currentPlayerIndex:", currentPlayerIndex, "roundTurnOrder:", roundTurnOrder, "playerRoundData", playerRoundData);
+          return; // Exit if currentPlayer is undefined
+     }
+
     spelerAanZetH3.textContent = `${currentPlayer.name}`;
     throwsThisTurn = 0;
     currentScoreResult = {};
@@ -22,6 +64,7 @@ function setupPlayerTurn() {
     // Reset visual state
     die1Div.classList.remove('held', 'clickable', 'shaking');
     die2Div.classList.remove('held', 'clickable', 'shaking');
+    
 }
 
 
