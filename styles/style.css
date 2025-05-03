@@ -442,19 +442,19 @@ button:disabled {
    color: #bdc3c7;
 }
 
-/* --- Settings Menu Styling --- */
+/* --- Settings Menu Styling - Improved --- */
 .settings-menu-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+    background-color: rgba(0, 0, 0, 0.7); /* Darker semi-transparent background */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100; /* Above all other content */
-    visibility: hidden; /* Hidden by default */
+    z-index: 100;
+    visibility: hidden;
     opacity: 0;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
@@ -465,16 +465,155 @@ button:disabled {
 }
 
 .settings-menu-content {
-    background-color: var(--light-text);
-    padding: 30px;
+    background-color: #f8f9fa; /* Lighter background */
+    padding: 30px 35px; /* Increased padding */
     border-radius: 16px;
-    box-shadow: 0 10px 30px var(--shadow-color);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
     width: 90%;
-    max-width: 400px;
+    max-width: 450px; /* Slightly wider */
     text-align: center;
-    position: relative; /* Needed for potential positioning inside */
+    position: relative;
     overflow-y: auto;
-    max-height: 80vh;
+    max-height: 85vh; /* Slightly taller */
+}
+
+.settings-menu-content h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px; /* Increased margin below title */
+    font-size: 1.8em; /* Larger font size */
+}
+
+/* Improved Settings Sections */
+.settings-section {
+    margin-bottom: 30px; /* Increased space between sections */
+    padding-bottom: 15px; /* Add padding at the bottom for visual separation */
+    border-bottom: 1px solid var(--border-color); /* Add subtle line between sections */
+}
+
+.settings-section:last-child {
+    margin-bottom: 0; /* No margin at the end */
+    border-bottom: none; /* No border at the end */
+}
+
+.settings-section h3 {
+    margin-bottom: 15px; /* Space below section title */
+    font-size: 1.3em; /* Slightly larger section titles */
+    font-weight: 700; /* Bold section titles */
+    color: var(--text-color); /* Darker text color */
+}
+
+/* Improved Settings Items */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.toggle-label {
+    font-size: 1.1em;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+/* Enhanced Toggle Switch Styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px; /* Increased width */
+    height: 34px; /* Increased height */
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px; /* Adjusted height */
+    width: 26px; /* Adjusted width */
+    left: 4px; /* Adjusted position */
+    bottom: 4px; /* Adjusted position */
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--secondary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--secondary-color);
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px); /* Adjusted for increased width */
+    -ms-transform: translateX(26px); /* Adjusted for increased width */
+    transform: translateX(26px); /* Adjusted for increased width */
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+
+/* Player Input Area */
+.player-input-area {
+    display: flex;
+    gap: 10px;
+    width: 100%; /* Ensure it takes full width */
+    align-items: center; /* Center vertically */
+}
+
+.player-input-area input {
+    flex-grow: 1; /* Input box takes up available space */
+    width: auto;
+}
+
+.player-input-area button {
+    white-space: nowrap;
+}
+
+.settings-menu-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.settings-menu-content li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 8px;
+}
+
+.settings-menu-content li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+
+.settings-menu-content button {
+    margin-top: 25px; /* Slightly increased margin */
 }
 
 .settings-menu-content h2 {
@@ -584,6 +723,17 @@ button:disabled {
     #lowest-score-announcement {
        font-size: 1.3em;
    }
+}
+@media (max-width: 480px) {
+    .settings-menu-content {
+        padding: 20px; /* Reduce padding on smaller screens */
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start; /* Align to start on smaller screens */
+        gap: 10px;
+    }
 }
 
 /* Remove outline from settings button */

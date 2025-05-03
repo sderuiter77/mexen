@@ -31,7 +31,7 @@ function showSettingsMenu() {
     });
 
     // Set the title of the settings menu
-    settingsMenu.querySelector('h2').textContent = 'Spelers';
+    settingsMenu.querySelector('h2').textContent = 'Instellingen';
 
     settingsPlayerList.id = 'player-list';
 
