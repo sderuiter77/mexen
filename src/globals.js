@@ -15,6 +15,12 @@ let currentPlayerIndex = 0;
 let lastRoundLowestIndices = [];
 let overtakenPlayersMap = new Map();
 
+// Settings
+let longestTurnDrinkEnabled = false; // Default value
+
+// Timer variable
+let turnStartTime = null;
+
 // Current Turn State
 let throwsThisTurn = 0;
 let currentDice = [0, 0];

@@ -202,6 +202,23 @@ function endRound() {
          actionMessages.push("Geen geldige laagste score bepaald deze ronde.");
     }
 
+    // 4. Find player with maximum turn duration
+    let maxDuration = 0;
+    let maxDurationPlayerIndex = null;
+
+    playerRoundData.forEach((playerData, index) => {
+        if (playerData.turnDuration > maxDuration) {
+            maxDuration = playerData.turnDuration;
+            maxDurationPlayerIndex = index;
+        }
+    });
+
+    // 5. Apply penalty to player with maximum turn duration
+    if (longestTurnDrinkEnabled && maxDurationPlayerIndex !== null) {
+        playerRoundData[maxDurationPlayerIndex].drinksToTake += drinksForLowest;
+        actionMessages.push(`<strong>${playerRoundData[maxDurationPlayerIndex].name}</strong> dacht te lang na (${(playerRoundData[maxDurationPlayerIndex].turnDuration / 1000).toFixed(2)}s), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+    }
+
 
     // --- Build Action Display HTML ---
      let actionsHTML = "<strong class='actions-section'>Drinken!</strong><br>";

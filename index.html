@@ -58,13 +58,14 @@
         <div id="actie-knoppen">
             <button id="main-action-btn" disabled>Gooi</button>
             <button id="show-lowest-btn">Toon Laagste</button>
-            <button id="settings-button"><img src="images/gear-icon.png" alt="Settings" /></button>
+            <button class="settings-button"><img src="images/gear-icon.png" alt="Settings" /></button>
         </div>
         <!-- End elements to hide/show -->
 
         <!-- Round Results (Initially hidden) -->
         <div id="ronde-resultaten">
-             <div id="lowest-score-announcement"></div> <!-- ADDED: For lowest score message -->
+            <button class="settings-button"><img src="images/gear-icon.png" alt="Settings" /></button>
+            <div id="lowest-score-announcement"></div> <!-- ADDED: For lowest score message -->
              <h3>Resultaten</h3>
              <div id="resultaten-acties"></div>
              <hr>
@@ -81,13 +82,31 @@
     <div id="settings-menu" class="settings-menu-overlay">
         <div class="settings-menu-content">
             <h2>Settings</h2>
-            <input type="text" id="settings-player-input" placeholder="Naam speler">
-            <button id="settings-add-player-btn">Voeg Toe</button>
-            <ul id="settings-player-list"></ul>
+
+            <div class="settings-section game-settings">
+                 <div class="setting-item">
+                    <label class="toggle-label">Langste beurt drinkt:</label>
+                    <label class="switch">
+                      <input type="checkbox" id="longest-turn-drink-enabled">
+                      <span class="slider round"></span>
+                    </label>
+                 </div>
+            </div>
+
+            <div class="settings-section player-settings">
+                <h3>Spelers beheren</h3>
+                 <div class="player-input-area">
+                    <input type="text" id="settings-player-input" placeholder="Naam speler">
+                    <button id="settings-add-player-btn">Voeg Toe</button>
+                 </div>
+                <ul id="settings-player-list"></ul>
+            </div>
+
             <button id="save-settings-button">Sluiten</button>
         </div>
     </div>
 
+    
     <script defer src="src/globals.js"></script>
     <script defer src="src/helpers.js"></script>
     <script defer src="src/setup.js"></script>
@@ -97,5 +116,7 @@
     <script defer src="src/score.js"></script>
     <script defer src="src/main.js"></script>
     <script defer src="src/listeners.js"></script>
+    
+    
 </body>
 </html>
