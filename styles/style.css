@@ -381,6 +381,7 @@ button:disabled {
     font-size: 1.1em;
     display: block;
     margin-bottom: 3px;
+    text-align: left;
 }
 #ronde-resultaten .score-section .throw-history {
    font-size: 0.95em;
