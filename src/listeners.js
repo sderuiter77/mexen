@@ -14,3 +14,4 @@ spelFaseDiv.addEventListener('click', handleBackgroundClick);
 settingsButton.addEventListener('click', showSettingsMenu);
 saveSettingsButton.addEventListener('click', hideSettingsMenu);
 settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
+settingsPlayerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayerFromSettings(); });

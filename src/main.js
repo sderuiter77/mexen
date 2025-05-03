@@ -15,19 +15,28 @@ function showSettingsMenu() {
     const activePlayers = players.filter(player => player.active);
     activePlayers.forEach((player, index) => {
         const li = document.createElement('li');
-        li.textContent = player.name;
 
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Verwijder';
+        const playerNameSpan = document.createElement('span');
+        playerNameSpan.classList.add('player-name');
+        playerNameSpan.textContent = player.name;
+
+        const removeButton = document.createElement('img');
+        removeButton.src = 'images/red-cross.png';
+        removeButton.classList.add('remove-player-button');
         removeButton.addEventListener('click', () => removePlayerFromSettings(index));
 
+        li.appendChild(playerNameSpan);
         li.appendChild(removeButton);
         settingsPlayerList.appendChild(li);
     });
 
-        // Set the title of the settings menu
+    // Set the title of the settings menu
     settingsMenu.querySelector('h2').textContent = 'Spelers';
 
+    settingsPlayerList.id = 'player-list';
+
+    // Add the 'player-input' id to the settingsPlayerInput
+    settingsPlayerInput.id = 'player-input';
     settingsMenu.classList.add('visible');
 }
 
