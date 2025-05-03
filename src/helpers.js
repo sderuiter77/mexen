@@ -40,7 +40,7 @@ function handleBackgroundClick(event) {
         const isMainActionButton = target.closest('#main-action-btn'); // Check main button
         const isShowLowestButton = target.closest('#show-lowest-btn');
         const isResultsArea = target.closest('#ronde-resultaten');
-        const isSettingsButton = target.closest('#settings-button'); // Check settings button
+        const isSettingsButton = target.closest('.settings-button'); // Check settings button
 
         // Trigger roll only if not clicking on interactive elements
         if (!isDie && !isMainActionButton && !isShowLowestButton && !isResultsArea && !isSettingsButton) {

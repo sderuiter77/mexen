@@ -1,4 +1,3 @@
-      
 // --- Event Listeners ---
 addPlayerBtn.addEventListener('click', addPlayer);
 playerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayer(); });
@@ -11,7 +10,10 @@ die2Div.addEventListener('click', () => handleDieClick(1));
 spelFaseDiv.addEventListener('click', handleBackgroundClick);
 
 // Settings Listeners
-settingsButton.addEventListener('click', showSettingsMenu);
-saveSettingsButton.addEventListener('click', hideSettingsMenu);
+const settingsButtons = document.querySelectorAll('.settings-button');
+settingsButtons.forEach(button => {
+    button.addEventListener('click', showSettingsMenu);
+});
+saveSettingsButton.addEventListener('click', () => {hideSettingsMenu(); updateLongestTurnDrinkEnabled();});
 settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
 settingsPlayerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayerFromSettings(); });

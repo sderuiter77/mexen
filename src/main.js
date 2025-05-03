@@ -140,6 +140,10 @@ function removePlayerFromSettings(index) {
     checkStartGameButton();
 }
 
-
 checkStartGameButton();
 hideMessage();
+
+function updateLongestTurnDrinkEnabled() {
+    const checkbox = document.getElementById('longest-turn-drink-enabled');
+    longestTurnDrinkEnabled = checkbox.checked;
+}

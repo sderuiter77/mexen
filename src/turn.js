@@ -64,6 +64,9 @@ function setupPlayerTurn() {
     // Reset visual state
     die1Div.classList.remove('held', 'clickable', 'shaking');
     die2Div.classList.remove('held', 'clickable', 'shaking');
+
+    // Start the timer
+    currentPlayer.turnStartTime = Date.now();
     
 }
 
@@ -83,6 +86,13 @@ function endPlayerTurn() {
     const finalScoreValue = playerRoundData[actualPlayerIndex].finalThrowValue;
     const currentPlayerName = playerRoundData[actualPlayerIndex].name;
     const currentScoreDisplay = playerRoundData[actualPlayerIndex].scoreDisplay;
+    const currentPlayer = playerRoundData[actualPlayerIndex];
+
+    // Calculate turn duration
+    const turnEndTime = Date.now();
+    const turnDuration = turnEndTime - currentPlayer.turnStartTime;
+    currentPlayer.turnDuration = turnDuration;
+    console.log("Turn duration for " + currentPlayerName + ": " + turnDuration + "ms");
 
     // --- Lowest Score & Overtake Logic ---
     if (finalScoreValue !== null && finalScoreValue !== 31 && finalScoreValue !== 32) {

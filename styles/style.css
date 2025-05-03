@@ -136,11 +136,12 @@ h3 { font-size: 1.3em; }
     cursor: pointer;
 }
 
+
 /* Spel Fase - Added position: relative for settings button positioning */
 #spel-fase { display: none; flex-direction: column; align-items: center; position: relative; }
 
 /* Settings Button - Modified to be just the icon */
-#settings-button {
+.settings-button {
     background-image: linear-gradient(to bottom, var(--secondary-color), #2980b9);
     color: white;
     border: none;
@@ -152,8 +153,7 @@ h3 { font-size: 1.3em; }
     font-family: 'Poppins', sans-serif;
     transition: background-image 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease;
     box-shadow: 0 3px 8px rgba(52, 152, 219, 0.4);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-transform: uppercase; letter-spacing: 0.5px;
         position: absolute;
     top: 15px; /* Adjust as needed */
     right: 15px; /* Adjust as needed */
@@ -170,25 +170,33 @@ h3 { font-size: 1.3em; }
     cursor: pointer; /* Indicate it's clickable */
     z-index: 10; /* Ensure it's above other content */
     transition: transform 0.2s ease; /* Add transition for hover effect */
+    outline: none; /* Remove outline on focus */
 }
 
 /* Remove default button hover/active effects */
-#settings-button:hover:not(:disabled) {
+.settings-button:hover:not(:disabled) {
     transform: scale(1.1); /* Slightly enlarge on hover */
     background: none;
     box-shadow: none;
 }
 
-#settings-button:active:not(:disabled) {
+.settings-button:active:not(:disabled) {
     transform: scale(0.95); /* Slightly shrink on click */
     box-shadow: none;
 }
 
-#settings-button img {
+.settings-button img {
     display: block; /* Remove extra space below image */
     width: 100%; /* Make image fill the button size */
     height: 100%; /* Make image fill the button size */
     object-fit: contain; /* Ensure the image fits without distortion */
+}
+
+/* Specific style for settings button in results phase */
+#ronde-resultaten .settings-button {
+    background: none;
+    background-color: transparent;
+    box-shadow: none; /* Add this line */
 }
 
 
@@ -465,6 +473,8 @@ button:disabled {
     max-width: 400px;
     text-align: center;
     position: relative; /* Needed for potential positioning inside */
+    overflow-y: auto;
+    max-height: 80vh;
 }
 
 .settings-menu-content h2 {
@@ -476,9 +486,6 @@ button:disabled {
     margin-top: 20px;
 }
 
-#settings-menu .player-list {
-    list-style: none;
-}
 
 /* --- Shake Animation --- */
 @keyframes shake {
@@ -577,4 +584,10 @@ button:disabled {
     #lowest-score-announcement {
        font-size: 1.3em;
    }
+}
+
+/* Remove outline from settings button */
+.settings-button:focus {
+    outline: none;
+    box-shadow: none;
 }
