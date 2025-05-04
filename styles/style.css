@@ -99,7 +99,7 @@ h3 { font-size: 1.3em; }
 #player-input {
    padding: 12px 18px; border: 1px solid var(--border-color);
    border-radius: 8px; width: 80%; font-size: 1em;
-   margin-bottom: 10px; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+   margin-bottom: 0px; transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 #player-input:focus {
    border-color: var(--secondary-color);
@@ -603,7 +603,7 @@ input:checked + .slider:before {
 .settings-menu-content li {
     padding: 8px 0;
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 8px;
+    margin-bottom: 0px;
 }
 
 .settings-menu-content li:last-child {
@@ -622,7 +622,7 @@ input:checked + .slider:before {
 }
 
 .settings-menu-content button {
-    margin-top: 20px;
+    margin-top: 0px;
 }
 
 
