@@ -474,18 +474,21 @@ button:disabled {
     text-align: center;
     position: relative;
     overflow-y: auto;
-    max-height: 85vh; /* Slightly taller */
+    max-height: 80vh; /* Reduced slightly */
+    transform: translateY(0); /* Reset any potential transform */
+    margin: 0; /* Reset any margin */
 }
 
 .settings-menu-content h2 {
     color: var(--primary-color);
+    margin-top: 0; /* Ensure no extra space at top */
     margin-bottom: 20px; /* Increased margin below title */
     font-size: 1.8em; /* Larger font size */
 }
 
 /* Improved Settings Sections */
 .settings-section {
-    margin-bottom: 30px; /* Increased space between sections */
+    margin-bottom: 25px; /* Slightly reduced margin */
     padding-bottom: 15px; /* Add padding at the bottom for visual separation */
     border-bottom: 1px solid var(--border-color); /* Add subtle line between sections */
 }
@@ -496,6 +499,7 @@ button:disabled {
 }
 
 .settings-section h3 {
+    margin-top: 0; /* Ensure no extra space at top */
     margin-bottom: 15px; /* Space below section title */
     font-size: 1.3em; /* Slightly larger section titles */
     font-weight: 700; /* Bold section titles */
@@ -507,7 +511,8 @@ button:disabled {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 10px 0; /* Slightly reduced padding */
+    margin: 0; /* Reset any margin */
 }
 
 .toggle-label {
@@ -584,6 +589,7 @@ input:checked + .slider:before {
     gap: 10px;
     width: 100%; /* Ensure it takes full width */
     align-items: center; /* Center vertically */
+    margin: 0; /* Reset any margin */
 }
 
 .player-input-area input {
@@ -598,12 +604,13 @@ input:checked + .slider:before {
 .settings-menu-content ul {
     list-style: none;
     padding: 0;
+    margin: 10px 0; /* Standardize margin */
 }
 
 .settings-menu-content li {
     padding: 8px 0;
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .settings-menu-content li:last-child {
@@ -611,20 +618,10 @@ input:checked + .slider:before {
     margin-bottom: 0;
 }
 
-
 .settings-menu-content button {
-    margin-top: 25px; /* Slightly increased margin */
+    margin-top: 20px; /* Standardize button margin */
+    margin-bottom: 0; /* Ensure no extra space at bottom */
 }
-
-.settings-menu-content h2 {
-    margin-top: 0;
-    color: var(--primary-color);
-}
-
-.settings-menu-content button {
-    margin-top: 0px;
-}
-
 
 /* --- Shake Animation --- */
 @keyframes shake {
@@ -689,6 +686,26 @@ input:checked + .slider:before {
        font-size: 1.4em;
    }
 }
+@media (max-width: 480px) {
+    .settings-menu-content {
+        padding: 20px; /* Reduce padding on smaller screens */
+        max-height: 75vh; /* Reduce max height on smaller screens */
+        width: 85%; /* Slightly narrower on mobile */
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start; /* Align to start on smaller screens */
+        gap: 10px;
+    }
+    
+    /* Ensure the settings button remains fixed in place */
+    .settings-button {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+}
 @media (max-width: 420px) {
     :root {
        /* Increased sizes for smaller mobile */
@@ -723,17 +740,6 @@ input:checked + .slider:before {
     #lowest-score-announcement {
        font-size: 1.3em;
    }
-}
-@media (max-width: 480px) {
-    .settings-menu-content {
-        padding: 20px; /* Reduce padding on smaller screens */
-    }
-
-    .setting-item {
-        flex-direction: column;
-        align-items: flex-start; /* Align to start on smaller screens */
-        gap: 10px;
-    }
 }
 
 /* Remove outline from settings button */
