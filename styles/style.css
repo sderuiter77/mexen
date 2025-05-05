@@ -250,13 +250,18 @@ h3 { font-size: 1.3em; }
 .die.clickable {
     cursor: pointer; /* Change cursor only when truly clickable */
 }
-.die.clickable:hover {
+.die.clickable:not(.held):hover {
    transform: scale(1.05) rotateY(6deg);
    box-shadow: 12px 12px 30px rgba(0,0,0,0.20), /* Enhanced hover shadow */
               -10px -10px 25px rgba(255,255,255,0.8),
               inset 0 4px 7px rgba(255, 255, 255, 0.7),
               inset 0 -4px 7px rgba(0, 0, 0, 0.06);
 }
+
+.die.clickable.held:hover {
+    transform: scale(1.05) rotateY(6deg);
+}
+
 .die.held {
    border-color: var(--accent-color);
     /* Enhanced glow */
@@ -266,6 +271,10 @@ h3 { font-size: 1.3em; }
               inset 0 4px 7px rgba(255, 255, 255, 0.7),
               inset 0 -4px 7px rgba(0, 0, 0, 0.06);
    transform: scale(1.02);
+}
+.die.held:active{
+      border-color: var(--accent-color);
+      box-shadow: 0 0 25px var(--accent-color);
 }
 
 .dot {
