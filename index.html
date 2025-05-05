@@ -9,16 +9,7 @@
 </head>
 <body>
     <div class="title-container">
-        <svg class="penguin-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <path fill="#2c3e50" d="M50 10 C 30 10, 15 30, 15 50 C 15 80, 35 95, 50 95 C 65 95, 85 80, 85 50 C 85 30, 70 10, 50 10 Z"/>
-          <path fill="#ffffff" d="M50 25 C 40 25, 30 40, 30 55 C 30 75, 40 85, 50 85 C 60 85, 70 75, 70 55 C 70 40, 60 25, 50 25 Z"/>
-          <ellipse fill="#e67e22" cx="50" cy="75" rx="15" ry="5"/>
-          <ellipse fill="#2c3e50" cx="42" cy="45" rx="4" ry="6"/>
-          <ellipse fill="#2c3e50" cx="58" cy="45" rx="4" ry="6"/>
-          <path fill="#e67e22" d="M 48 60 Q 50 65 52 60 Q 50 58 48 60 Z"/>
-          <path fill="#2c3e50" d="M 15 50 C 10 55, 5 70, 10 80 C 20 75, 25 60, 15 50 Z" />
-          <path fill="#2c3e50" d="M 85 50 C 90 55, 95 70, 90 80 C 80 75, 75 60, 85 50 Z" />
-        </svg>
+        <img class="penguin-logo" src="images/drunk-penguin.webp" alt="Drunk Penguin Logo">
         <h1>Penguin Mex</h1>
     </div>
 
@@ -29,7 +20,7 @@
         <button id="add-player-btn">Voeg Toe</button>
         <ul id="player-list"></ul>
         <button id="start-game-btn" disabled>Start Spel</button>
-        <p><small>Minimaal 2 spelers nodig.</small></p>
+        <p><small>Minimaal 1 speler nodig</small></p>
     </div>
 
     <!-- Spel Fase -->
@@ -53,7 +44,9 @@
             </div>
         </div>
         <div id="score-display" class="score-display">Score: -</div>
-        <div id="message-area" class="message-area"></div>
+        <div id="message-wrapper">
+            <div id="message-area" class="message-area"></div>
+        </div>
         <!-- Restored action buttons div -->
         <div id="actie-knoppen">
             <button id="main-action-btn" disabled>Gooi</button>
@@ -66,7 +59,7 @@
         <div id="ronde-resultaten">
             <!-- Removed settings button from here -->
             <div id="lowest-score-announcement"></div> <!-- ADDED: For lowest score message -->
-             <h3>Resultaten</h3>
+             <h3 id="results-header">Resultaten</h3>
              <div id="resultaten-acties"></div>
              <hr>
              <div id="resultaten-scores"></div>

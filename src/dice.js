@@ -83,11 +83,10 @@ function handleRollResultLogic() {
         if (currentScoreResult.type === 'mex') {
             mexCountThisRound++;
             const multiplier = Math.pow(2, mexCountThisRound);
-            let mexMsg = `MEX! ${currentPlayer.name} stopt direct.`;
+            let mexMsg = `MEX! `;
             if (currentPlayerIndex === 0 && throwsThisTurn < roundThrowsLimit) {
                 roundThrowsLimit = throwsThisTurn;
                 maxWorpenSpan.textContent = roundThrowsLimit;
-                mexMsg += ` Nieuwe limiet: ${roundThrowsLimit} worp${roundThrowsLimit === 1 ? '' : 'en'}.`;
             }
             mexMsg += ` ${pluralizeSlok(2)} x${multiplier}!`;
             showTemporaryMessage(mexMsg, 'special');

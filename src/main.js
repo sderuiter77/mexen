@@ -1,5 +1,5 @@
 function startGame() {
-    if (players.length < 2) return;
+    if (players.length < 1) return; // there must be one or more players to start the game
     lastRoundLowestIndices = [];
     setupFaseDiv.style.display = 'none';
     spelFaseDiv.style.display = 'flex';
@@ -77,6 +77,8 @@ function addPlayerFromSettings() {
 }
 
 function removePlayerFromSettings(index) {
+    if (players.length <= 1) return; // Do nothing if there are 1 or fewer players
+
     const removedPlayerIndex = index;
 
     if (index === currentPlayerIndex) {
@@ -138,6 +140,10 @@ function removePlayerFromSettings(index) {
 
     showSettingsMenu(); // Refresh the list
     checkStartGameButton();
+}
+
+function checkStartGameButton() {
+    startGameBtn.disabled = players.length === 0;
 }
 
 checkStartGameButton();

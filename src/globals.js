@@ -50,6 +50,7 @@ const nextRoundBtn = document.getElementById('next-round-btn');
 const showLowestBtn = document.getElementById('show-lowest-btn');
 const rondeResultatenDiv = document.getElementById('ronde-resultaten');
 const resultatenScoresDiv = document.getElementById('resultaten-scores');
+const resultsHeader = document.getElementById('results-header')
 const resultatenActiesDiv = document.getElementById('resultaten-acties');
 const diceContainer = document.querySelector('.dice-container');
 const spelInfoDiv = document.getElementById('spel-info');

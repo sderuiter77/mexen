@@ -140,8 +140,8 @@ function endRound() {
      // --- Calculate Drinks & Actions ---
     // 1. Process 31/32 drinks
     playerRoundData.forEach((data, playerIndex) => {
-        if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (31).`);
-        if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} (32).`);
+        if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (31)`);
+        if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} (32)`);
 
     });
 
@@ -151,7 +151,7 @@ function endRound() {
             if (playerRoundData[playerIndex]) {
                 const overtakenPlayerName = playerRoundData[playerIndex].name;
                 const overtakenScoreApprox = playerRoundData[playerIndex].scoreDisplay || '?';
-                actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (${overtakenScoreApprox} laag overgenomen).`);
+                actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (${overtakenScoreApprox} laag overgenomen)`);
                 playerRoundData[playerIndex].drinksToTake += totalOvertakeDrinks;
             } else {
                  console.error("Overtaken player index out of bounds:", playerIndex);
@@ -192,9 +192,9 @@ function endRound() {
 
          if (lowestPlayersForPenalty.length > 0) {
              if (lowestPlayersForPenalty.length === 1) {
-                 actionMessages.push(`${lowestPlayersForPenalty[0]} laagste score (${displayScoreForMsg}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+                 actionMessages.push(`${lowestPlayersForPenalty[0]} laagste score (${displayScoreForMsg}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}`);
              } else {
-                 actionMessages.push(`Gelijkspel laagste score (${displayScoreForMsg}): ${lowestPlayersForPenalty.join(', ')} drinken elk ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+                 actionMessages.push(`Gelijkspel laagste score (${displayScoreForMsg}): ${lowestPlayersForPenalty.join(', ')} drinken elk ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}`);
              }
          }
     }
@@ -216,17 +216,18 @@ function endRound() {
     // 5. Apply penalty to player with maximum turn duration
     if (longestTurnDrinkEnabled && maxDurationPlayerIndex !== null) {
         playerRoundData[maxDurationPlayerIndex].drinksToTake += drinksForLowest;
-        actionMessages.push(`<strong>${playerRoundData[maxDurationPlayerIndex].name}</strong> dacht te lang na (${(playerRoundData[maxDurationPlayerIndex].turnDuration / 1000).toFixed(2)}s), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}.`);
+        const duration = formatDuration(playerRoundData[maxDurationPlayerIndex].turnDuration);
+        actionMessages.push(`<strong>${playerRoundData[maxDurationPlayerIndex].name}</strong> atje des (${duration}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}!`);
     }
 
 
     // --- Build Action Display HTML ---
-     let actionsHTML = "<strong class='actions-section'>Drinken!</strong><br>";
+     let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
      actionsHTML += '<div class="actions-section">';
      actionsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
      if (mexCountThisRound > 0) {
           const mexWord = numberToWord(mexCountThisRound);
-         actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? '' : 'en'})</em>`;
+         actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
      }
      actionsHTML += '</div>';
     resultatenActiesDiv.innerHTML = actionsHTML; // RENDER ACTIONS FIRST
@@ -238,7 +239,12 @@ function endRound() {
          const data = playerRoundData[actualPlayerIndex];
 
          scoreHTML += `<div class="score-section">`;
-         scoreHTML += `<strong class="player-name">${data.name}:</strong>`;
+         
+        if (longestTurnDrinkEnabled) {
+            scoreHTML += `<div class="player-name-score"> <strong>${data.name}</strong> (${formatDuration(data.turnDuration)}):</div>`;
+        } else {
+            scoreHTML += `<div class="player-name-score"> <strong>${data.name}</strong>:</div>`;
+        }
          scoreHTML += `<span class="throw-history" data-player-index="${data.id}">`; // Use original ID
 
          let finalThrowIndex = -1;
@@ -293,7 +299,7 @@ function endRound() {
         // Get clean names (remove the <strong> tags used elsewhere)
         const loserNames = lowestPlayersForPenalty.map(p => p.replace(/<\/?strong>/g, '')).join(' en ');
         const slokText = pluralizeSlok(drinksForLowest);
-        announcementMsg = `${loserNames} laag! ${drinksForLowest} ${slokText} drinken!`;
+        announcementMsg = `${loserNames} laag - ${drinksForLowest} ${slokText}!`;
     } else {
          // Optionally display a message if no one has the lowest penalty (e.g., only overtakes)
          // announcementMsg = "Geen directe laagste score straf.";
@@ -308,7 +314,7 @@ function endRound() {
     // --- END: Add logic for lowest score announcement ---
 
     // --- Insert and show Next Round Button ---
-    rondeResultatenDiv.insertBefore(nextRoundBtn, resultatenScoresDiv); // Insert before score details
+    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader); // Insert before score details
     nextRoundBtn.style.display = 'block'; // Make the button visible
     nextRoundBtn.disabled = false; // Enable the button
 

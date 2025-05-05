@@ -10,10 +10,35 @@ function playSound(audioElement) {
     }
 }
 
- // --- Helper Functions ---
- function pluralizeSlok(count) {
+// --- Helper Functions ---
+function pluralizeSlok(count) {
     return count === 1 ? "slok" : "slokken";
 }
+
+function formatDuration(totalMilliseconds) {
+    const totalSeconds = Math.round(totalMilliseconds / 1000); // Round to the nearest second
+    const hours = Math.floor(totalSeconds / 3600); // Calculate hours
+    const minutes = Math.floor((totalSeconds % 3600) / 60); // Calculate remaining minutes
+    const seconds = totalSeconds % 60; // Calculate remaining seconds
+  
+    let formattedDuration = ""; // Initialize an empty string
+  
+    if (hours > 0) { // If there are hours
+      formattedDuration += `${hours}h`; // Add hours
+    }
+    if (minutes > 0) { // If there are minutes
+      formattedDuration += `${hours > 0 ? " " : ""}${minutes}m`; // Add minutes, include a space if hours are present
+    }
+    if (seconds > 0) { // If there are seconds
+      formattedDuration += `${hours > 0 || minutes > 0 ? " " : ""}${seconds}s`; // Add seconds, include a space if hours or minutes are present
+    }
+    if (hours === 0 && minutes === 0 && seconds === 0) {
+      formattedDuration = "0s";
+    }
+    return formattedDuration;
+}
+
+
 
 function numberToWord(num) {
     const words = ["nul", "één", "twee", "drie", "vier", "vijf", "zes"];
@@ -22,6 +47,7 @@ function numberToWord(num) {
 
 function showTemporaryMessage(msg, type = 'info') {
     messageAreaDiv.innerHTML = msg;
+    messageAreaDiv.style.visibility = 'visible'
     messageAreaDiv.className = 'message-area visible';
     if (type === 'special') {
         messageAreaDiv.classList.add('special');
@@ -29,7 +55,8 @@ function showTemporaryMessage(msg, type = 'info') {
 }
 
 function hideMessage() {
-    messageAreaDiv.className = 'message-area';
+    messageAreaDiv.style.visibility = 'hidden';
+    messageAreaDiv.style.heigth = "45.6px"
 }
 
 function handleBackgroundClick(event) {
