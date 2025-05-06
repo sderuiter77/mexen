@@ -1,6 +1,9 @@
 function startNewRound() {
     // --- START: Clear announcement and class ---
     const announcementDiv = document.getElementById('lowest-score-announcement');
+        // Get the messageWrapper element
+    const messageWrapper = document.getElementById('message-wrapper');
+    messageWrapper.style.display = '';
     if (announcementDiv) announcementDiv.textContent = '';
     rondeResultatenDiv.classList.remove('showing-results');
     // --- END: Clear announcement and class ---
@@ -120,6 +123,9 @@ function endRound() {
     mainActionBtn.disabled = true; // Disable the main button
     mainActionBtn.textContent = "Ronde Klaar"; // Update text
     showLowestBtn.disabled = true;
+    // Get the messageWrapper element
+    const messageWrapper = document.getElementById('message-wrapper');
+    messageWrapper.style.display = 'none';
     hideMessage();
 
     // --- Hide Game Elements ---
@@ -220,6 +226,13 @@ function endRound() {
         actionMessages.push(`<strong>${playerRoundData[maxDurationPlayerIndex].name}</strong> atje des (${duration}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}!`);
     }
 
+    // --- Add logic for longest turn announcement ---
+    const longestTurnAnnouncementDiv = document.getElementById('longest-turn-announcement');
+    if (longestTurnDrinkEnabled && maxDurationPlayerIndex !== null) {
+        const longestTurnPlayerName = playerRoundData[maxDurationPlayerIndex].name;
+        const duration = formatDuration(playerRoundData[maxDurationPlayerIndex].turnDuration);
+        longestTurnAnnouncementDiv.textContent = `${longestTurnPlayerName} atje des, ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}!`;
+    }
 
     // --- Build Action Display HTML ---
      let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
