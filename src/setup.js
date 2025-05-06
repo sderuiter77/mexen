@@ -14,7 +14,7 @@ function removePlayer(index) {
     updatePlayerList();
     checkStartGameButton();
 }
-
+ 
 
 function updatePlayerList() {
      playerListUl.innerHTML = '';
