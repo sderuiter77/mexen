@@ -29,9 +29,14 @@
     display: none !important;
 }
 
-
 html {
     height: 100%;
+    width: 100%;
+}
+
+::backdrop
+{
+    background-color: linear-gradient(to bottom, var(--background-start), var(--background-end));
 }
 
 body {
