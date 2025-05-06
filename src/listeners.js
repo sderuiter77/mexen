@@ -21,7 +21,7 @@ settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
 
 fullscreenButton.addEventListener('click', () => {
     if (!document.fullscreenElement) {
-        document.body.requestFullscreen();
+        document.documentElement.requestFullscreen();
     } else {
         document.exitFullscreen();
     }
