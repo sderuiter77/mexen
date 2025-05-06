@@ -19,12 +19,21 @@ settingsButtons.forEach(button => {
 saveSettingsButton.addEventListener('click', () => {hideSettingsMenu(); updateLongestTurnDrinkEnabled();});
 settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
 
+
+
+// if (!docEl) return;
+// if (docEl.requestFullscreen) docEl.requestFullscreen();
+// else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+// else if (docEl.mozRequestFullScreen) docEl.mozRequestFullScreen(); // Careful to the capital S
+// else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+// else if (docEl.webkitEnterFullscreen) docEl.webkitEnterFullscreen(); // Magic is here for iOS
 fullscreenButton.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) docEl.requestFullscreen();
+    else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+    else if (docEl.mozRequestFullScreen) docEl.mozRequestFullScreen(); // Careful to the capital S
+    else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
+    else if (docEl.webkitEnterFullscreen) docEl.webkitEnterFullscreen(); // Magic is here for iOS
 });
 
 document.addEventListener('fullscreenchange', () => {fullscreenButton.classList.toggle('invisible', document.fullscreenElement !== null)});
