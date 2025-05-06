@@ -20,19 +20,20 @@ let list;
       event.preventDefault();
   });
 
-  document.addEventListener("drop", ({target}) => {
-   if(target.className == "dropzone" && target.id !== id) {
+  document.addEventListener("drop", (event) => {
+    event.preventDefault();
+   if(event.target.className == "dropzone" && event.target.id !== id) {
        dragged.remove( dragged );
       for(let i = 0; i < list.length; i += 1) {
-      	if(list[i] === target){
+      	if(list[i] === event.target){
           indexDrop = i;
         }
       }
       console.log(index, indexDrop);
       if(index > indexDrop) {
-      	target.before( dragged );
+      	event.target.before( dragged );
       } else {
-       target.after( dragged );
+       event.target.after( dragged );
       }
     }
   });
