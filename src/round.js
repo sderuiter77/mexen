@@ -231,7 +231,7 @@ function endRound() {
     if (longestTurnDrinkEnabled && maxDurationPlayerIndex !== null) {
         const longestTurnPlayerName = playerRoundData[maxDurationPlayerIndex].name;
         const duration = formatDuration(playerRoundData[maxDurationPlayerIndex].turnDuration);
-        longestTurnAnnouncementDiv.display = '';
+        longestTurnAnnouncementDiv.style.display = '';
         longestTurnAnnouncementDiv.textContent = `${longestTurnPlayerName} atje des, ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}!`;
     } else longestTurnAnnouncementDiv.style.display = 'none';
 
