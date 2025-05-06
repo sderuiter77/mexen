@@ -34,7 +34,7 @@ html {
     width: 100%;
 }
 
-::backdrop
+::fullscreen, ::backdrop
 {
     background-color: linear-gradient(to bottom, var(--background-start), var(--background-end));
 }
