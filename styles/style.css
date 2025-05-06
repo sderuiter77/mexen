@@ -155,10 +155,7 @@ h3 { font-size: 1.3em; }
     width: 30px; /* Set size of the clickable area */
     height: 30px; /* Set size of the clickable area */
     padding: 0; /* Remove padding */
-
     background: none; /* Remove background */
- 
- 
     box-shadow: none; /* Remove box shadow */
     cursor: pointer; /* Indicate it's clickable */
     z-index: 10; /* Ensure it's above other content */
