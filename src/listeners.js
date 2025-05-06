@@ -1,3 +1,5 @@
+const fullscreenButton = document.getElementById('fullscreen-button');
+
 // --- Event Listeners ---
 addPlayerBtn.addEventListener('click', addPlayer);
 playerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayer(); });
@@ -16,4 +18,13 @@ settingsButtons.forEach(button => {
 });
 saveSettingsButton.addEventListener('click', () => {hideSettingsMenu(); updateLongestTurnDrinkEnabled();});
 settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
-settingsPlayerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayerFromSettings(); });
+
+fullscreenButton.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.body.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+document.addEventListener('fullscreenchange', () => {fullscreenButton.classList.toggle('invisible', document.fullscreenElement !== null)});
