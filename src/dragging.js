@@ -4,10 +4,11 @@ let index;
 let indexDrop;
 let list;
 
-  document.addEventListener("dragstart", ({target}) => {
-      dragged = target;
-      id = target.id;
-      list = target.parentNode.children;
+  document.addEventListener("dragstart", (event) => {
+      dragged = event.target;
+      id = event.target.id;
+      list = event.target.parentNode.children;
+      Event.dataTransfer.setData('text/plain', 'hello');
       for(let i = 0; i < list.length; i += 1) {
       	if(list[i] === dragged){
           index = i;
