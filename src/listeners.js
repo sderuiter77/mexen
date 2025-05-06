@@ -18,6 +18,7 @@ settingsButtons.forEach(button => {
 });
 saveSettingsButton.addEventListener('click', () => {hideSettingsMenu(); updateLongestTurnDrinkEnabled();});
 settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
+settingsPlayerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayerFromSettings(); });
 
 fullscreenButton.addEventListener('click', () => {
     const docEl = document.documentElement;

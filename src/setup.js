@@ -1,7 +1,7 @@
 function addPlayer() {
     const playerName = playerInput.value.trim();
     if (playerName) {
-        players.push({ name: playerName, active: true });
+        players.push({ name: playerName, active: true, id: generateGUID()});
         playerInput.value = '';
         updatePlayerList();
         checkStartGameButton();
@@ -29,7 +29,9 @@ function updatePlayerList() {
         removeButton.src = 'images/red-cross.png';
         removeButton.classList.add('remove-player-button');
         removeButton.addEventListener('click', () => removePlayer(index));
-
+        li.draggable = true;
+        li.classList.add('dropzone');
+        li.id = String(player.id)
         li.appendChild(playerNameSpan);
         li.appendChild(removeButton);
         playerListUl.appendChild(li);

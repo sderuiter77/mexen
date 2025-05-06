@@ -24,7 +24,9 @@ function showSettingsMenu() {
         removeButton.src = 'images/red-cross.png';
         removeButton.classList.add('remove-player-button');
         removeButton.addEventListener('click', () => removePlayerFromSettings(index));
-
+        li.draggable = true;
+        li.classList.add('dropzone');
+        li.id = String(player.id)
         li.appendChild(playerNameSpan);
         li.appendChild(removeButton);
         settingsPlayerList.appendChild(li);
@@ -36,7 +38,7 @@ function showSettingsMenu() {
     settingsPlayerList.id = 'player-list';
 
     // Add the 'player-input' id to the settingsPlayerInput
-    settingsPlayerInput.id = 'player-input';
+    settingsPlayerInput.id = 'settings-player-input';
     settingsMenu.classList.add('visible');
 }
 
@@ -48,7 +50,7 @@ function hideSettingsMenu() {
 function addPlayerFromSettings() {
     const playerName = settingsPlayerInput.value.trim();
     if (playerName !== '') {
-        players.push({ name: playerName, active: true });
+        players.push({ name: playerName, active: true, id: generateGUID()});
          // Add the new player's index to the roundTurnOrder for the current round
         roundTurnOrder.push(players.length - 1);
 

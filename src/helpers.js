@@ -1,3 +1,5 @@
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:4156459990.
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:2329013320.
 // --- Sound Playback Helper ---
 function playSound(audioElement) {
     if (audioElement) {
@@ -14,6 +16,13 @@ function playSound(audioElement) {
 function pluralizeSlok(count) {
     return count === 1 ? "slok" : "slokken";
 }
+
+function generateGUID() { // RFC4122 compliant GUID generator
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+    }
 
 function formatDuration(totalMilliseconds) {
     const totalSeconds = Math.round(totalMilliseconds / 1000); // Round to the nearest second
