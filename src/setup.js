@@ -1,25 +1,28 @@
-function addPlayer() {
+function addPlayerFromSetup() {
     const playerName = playerInput.value.trim();
     if (playerName) {
-        players.push({ name: playerName, active: true, id: generateGUID()});
-        playerInput.value = '';
-        updatePlayerList();
-        checkStartGameButton();
+        const newPlayerId = generateGUID();
+        players.push({ id: newPlayerId, name: playerName, active: true });
+        playerInput.value = ''; // Clear input
+        updatePlayerListForSetup();
+        checkStartGameButtonState();
     }
-    playerInput.focus();
+    playerInput.focus(); // Keep focus on input for easy multi-add
 }
 
-function removePlayer(index) {
-    players.splice(index, 1);
-    updatePlayerList();
-    checkStartGameButton();
+function removePlayerFromSetup(playerIdToRemove) {
+    players = players.filter(player => player.id !== playerIdToRemove);
+    updatePlayerListForSetup();
+    checkStartGameButtonState();
 }
- 
 
-function updatePlayerList() {
-     playerListUl.innerHTML = '';
-    players.forEach((player, index) => {
+function updatePlayerListForSetup() {
+    playerListUl.innerHTML = ''; // Clear existing list
+    players.forEach(player => {
         const li = document.createElement('li');
+        li.id = player.id; // Use GUID for ID
+        li.classList.add('dropzone'); // For dragging
+        li.draggable = true;
 
         const playerNameSpan = document.createElement('span');
         playerNameSpan.classList.add('player-name');
@@ -27,11 +30,13 @@ function updatePlayerList() {
 
         const removeButton = document.createElement('img');
         removeButton.src = 'images/red-cross.png';
+        removeButton.alt = 'Verwijder';
         removeButton.classList.add('remove-player-button');
-        removeButton.addEventListener('click', () => removePlayer(index));
-        li.draggable = true;
-        li.classList.add('dropzone');
-        li.id = String(player.id)
+        removeButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent drag start if clicking remove button
+            removePlayerFromSetup(player.id);
+        });
+
         li.appendChild(playerNameSpan);
         li.appendChild(removeButton);
         playerListUl.appendChild(li);

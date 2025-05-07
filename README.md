@@ -1,14 +1,14 @@
-# Penguin Mex: A Web-Based Dice Game
+# Pinquin Mex: A Web-Based Dice Game
 
-Welcome to Penguin Mex, a fun and engaging web-based dice game! This README provides information about the game, its files, how to run it, and how to get started.
+Welcome to Pinquin Mex, a fun and engaging web-based dice game! This README provides information about the game, its files, how to run it, and how to get started.
 
 ## Purpose
 
-Penguin Mex is a dice game where players take turns rolling dice and strategically managing their scores. The game involves risk, chance, and a little bit of luck. The main goal is to get the lowest score possible by the end of a set amount of rounds, or until a player has lost all of their lives.
+Pinquin Mex is a dice game where players take turns rolling dice and strategically managing their scores. The game involves risk, chance, and a little bit of luck. The main goal is to get the lowest score possible by the end of a set amount of rounds, or until a player has lost all of their lives.
 
 ## Getting Started
 
-To start playing Penguin Mex, follow these simple steps:
+To start playing Pinquin Mex, follow these simple steps:
 
 1.  **Open `index.html`**: Navigate to the root directory of the project and open the `index.html` file in your web browser.
 2.  **Setup**: The game will start by asking for the amount of players and lives that will be used.

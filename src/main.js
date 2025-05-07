@@ -1,157 +1,172 @@
-function startGame() {
-    if (players.length < 1) return; // there must be one or more players to start the game
-    lastRoundLowestIndices = [];
-    setupFaseDiv.style.display = 'none';
-    spelFaseDiv.style.display = 'flex';
-    hideMessage();
-    startNewRound();
+function initializeGame() {
+  if (players.length < 1) {
+      alert("Voeg minimaal één speler toe om het spel te starten.");
+      return;
+  }
+  lastRoundLoserIds = []; // Reset losers from previous game (if any)
+  currentRound = 0; // Reset round counter
+  
+  // Initialize playerRoundData for all players who will start the game
+  playerRoundData = {};
+  players.forEach(player => {
+      if (player.active) { // Ensure only active players are set up for the first round
+          playerRoundData[player.id] = createNewPlayerRoundData(player.name);
+      }
+  });
+
+  setupFaseDiv.style.display = 'none';
+  spelFaseDiv.style.display = 'flex';
+  hideMessage();
+  startNewRound(); // This will increment currentRound to 1 and set up the first turn
 }
+
+// Listener for the main start game button (from setup phase)
+// startGameBtn.addEventListener('click', initializeGame); // Moved to listeners.js
 
 function showSettingsMenu() {
-    // Clear existing player list items
-    settingsPlayerList.innerHTML = '';
+  settingsPlayerList.innerHTML = ''; // Clear existing list items
 
-    // Populate player list with current players
-    const activePlayers = players.filter(player => player.active);
-    activePlayers.forEach((player, index) => {
-        const li = document.createElement('li');
+  // Rule 4: Hide inactive players from the settings menu.
+  const visiblePlayers = players.filter(player => player.active);
 
-        const playerNameSpan = document.createElement('span');
-        playerNameSpan.classList.add('player-name');
-        playerNameSpan.textContent = player.name;
+  visiblePlayers.forEach(player => { // Iterate over globally active players
+      const li = document.createElement('li');
+      li.id = player.id;
+      li.classList.add('dropzone');
+      li.draggable = true;
 
-        const removeButton = document.createElement('img');
-        removeButton.src = 'images/red-cross.png';
-        removeButton.classList.add('remove-player-button');
-        removeButton.addEventListener('click', () => removePlayerFromSettings(index));
-        li.draggable = true;
-        li.classList.add('dropzone');
-        li.id = String(player.id)
-        li.appendChild(playerNameSpan);
-        li.appendChild(removeButton);
-        settingsPlayerList.appendChild(li);
-    });
+      const playerNameSpan = document.createElement('span');
+      playerNameSpan.classList.add('player-name');
+      playerNameSpan.textContent = player.name; // No need for "(inactief)" as they are filtered
 
-    // Set the title of the settings menu
-    settingsMenu.querySelector('h2').textContent = 'Instellingen';
+      const removeButton = document.createElement('img');
+      removeButton.src = 'images/red-cross.png';
+      removeButton.alt = 'Verwijder';
+      removeButton.classList.add('remove-player-button');
+      removeButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removePlayerFromSettings(player.id);
+      });
 
-    settingsPlayerList.id = 'player-list';
-
-    // Add the 'player-input' id to the settingsPlayerInput
-    settingsPlayerInput.id = 'settings-player-input';
-    settingsMenu.classList.add('visible');
+      li.appendChild(playerNameSpan);
+      li.appendChild(removeButton);
+      settingsPlayerList.appendChild(li);
+  });
+  settingsPlayerList.id = 'player-list';
+  document.getElementById('longest-turn-drink-enabled').checked = longestTurnDrinkEnabled;
+  settingsMenu.classList.add('visible');
 }
 
-function hideSettingsMenu() {
-    settingsMenu.classList.remove('visible');
-    // Future: Add logic here to save settings if needed
+
+function hideSettingsMenuAndSave() {
+  settingsMenu.classList.remove('visible');
+  // Save settings
+  longestTurnDrinkEnabled = document.getElementById('longest-turn-drink-enabled').checked;
+  // Potentially update player order if drag-drop happened and game is not mid-round
+  // The dragging.js should update the `players` array directly.
+  // If a round is in progress, changes to player order via settings drag-drop
+  // should ideally take effect from the *next* round.
+  // `startNewRound` will use the current `players` array order.
 }
 
 function addPlayerFromSettings() {
-    const playerName = settingsPlayerInput.value.trim();
-    if (playerName !== '') {
-        players.push({ name: playerName, active: true, id: generateGUID()});
-         // Add the new player's index to the roundTurnOrder for the current round
-        roundTurnOrder.push(players.length - 1);
+  const playerName = settingsPlayerInput.value.trim();
+  if (playerName) {
+      const newPlayerId = generateGUID();
+      const newPlayer = { id: newPlayerId, name: playerName, active: true };
+      
+      // Rule 3: Add to the end of `players` array.
+      players.push(newPlayer);
 
-          // Also add a playerRoundData entry
-        playerRoundData.push({
-            name: playerName,
-            id: players.length - 1, // Use the correct index
-            scoreDisplay: null,
-            drinksToTake: 0,
-            finalThrowValue: null,
-            throwsHistory: [],
-            drinksGivenFrom31: 0,
-            drinksTakenFrom32: 0,
-            isActive: true //Marked Active in Round
-        });
+      // Initialize playerRoundData for the new player
+      if (!playerRoundData[newPlayerId]) {
+          playerRoundData[newPlayerId] = createNewPlayerRoundData(playerName);
+          playerRoundData[newPlayerId].isActive = true; // Active for the current round if added mid-game
+      }
 
-         // Check if currentPlayerIndex is out of bounds
-        if (currentPlayerIndex >= roundTurnOrder.length) {
-            currentPlayerIndex = 0;
-        }
-
-        settingsPlayerInput.value = ''; // Clear the input
-        showSettingsMenu(); // Refresh the list
-        checkStartGameButton(); //update start game button
-    }
+      // Rule 3: If a game is in progress, add to the end of current `roundTurnOrder`.
+      if ((gameState === 'playing' || gameState === 'turnOver') && !roundTurnOrder.includes(newPlayerId)) {
+          roundTurnOrder.push(newPlayerId);
+      }
+      
+      settingsPlayerInput.value = '';
+      showSettingsMenu(); // Refresh list
+      if (gameState === 'setup') checkStartGameButtonState();
+  }
 }
 
-function removePlayerFromSettings(index) {
-    if (players.length <= 1) return; // Do nothing if there are 1 or fewer players
+function removePlayerFromSettings(playerIdToRemove) {
+  const playerGlobalIndex = players.findIndex(p => p.id === playerIdToRemove);
+  if (playerGlobalIndex === -1) return; // Player not found
 
-    const removedPlayerIndex = index;
+  // Rule 4: Determine if player has had their turn in the current round.
+  let playerHasTakenTurnThisRound = false;
+  if (playerRoundData[playerIdToRemove] && playerRoundData[playerIdToRemove].finalThrowValue !== null) {
+      playerHasTakenTurnThisRound = true; // Score is set, turn completed.
+  } else if ((gameState === 'playing' || gameState === 'turnOver') && roundTurnOrder.includes(playerIdToRemove)) {
+      // Check based on position in roundTurnOrder relative to currentPlayerId
+      const playerIndexInTurnOrder = roundTurnOrder.indexOf(playerIdToRemove);
+      const currentIndexInTurnOrder = roundTurnOrder.indexOf(currentPlayerId);
 
-    if (index === currentPlayerIndex) {
-        // Remove the player from roundTurnOrder
-        const roundTurnOrderIndex = roundTurnOrder.indexOf(removedPlayerIndex);
-        if (roundTurnOrderIndex !== -1) {
-            roundTurnOrder.splice(roundTurnOrderIndex, 1);
-        }
-
-        players.splice(index, 1);
-        playerRoundData.splice(index, 1);
-
-        // Update roundTurnOrder indices
-        for (let i = 0; i < roundTurnOrder.length; i++) {
-            if (roundTurnOrder[i] > index) {
-                roundTurnOrder[i]--;
-            }
-        }
+      if (playerIdToRemove === currentPlayerId && throwsThisTurn > 0) {
+          playerHasTakenTurnThisRound = true; // Is current player and has started rolling.
+      } else if (currentIndexInTurnOrder !== -1 && playerIndexInTurnOrder < currentIndexInTurnOrder) {
+          // Their designated turn slot has already passed in the sequence.
+          playerHasTakenTurnThisRound = true;
+      }
+      // If playerIndexInTurnOrder === currentIndexInTurnOrder and throwsThisTurn === 0, they haven't started.
+  }
 
 
-        if (players.length > 0) {
-            currentPlayerIndex %= players.length;
-        } else {
-            currentPlayerIndex = 0; // Reset if no players left
-        }
+  if (playerHasTakenTurnThisRound) {
+      // Inactivate if they already had their turn.
+      players[playerGlobalIndex].active = false; // Mark globally inactive
+      if (playerRoundData[playerIdToRemove]) {
+          playerRoundData[playerIdToRemove].isActive = false; // Mark inactive for the current round's data processing
+      }
+      // They remain in `roundTurnOrder` for history, `advanceToNextPlayer` will skip them.
+  } else {
+      // Remove fully if they haven't had their turn yet.
+      players.splice(playerGlobalIndex, 1);
+      roundTurnOrder = roundTurnOrder.filter(id => id !== playerIdToRemove);
+      delete playerRoundData[playerIdToRemove];
+  }
 
-        setupPlayerTurn(); // Adjust to the next player
-    } else {
-         // Remove the player from roundTurnOrder
-        const hasTakenTurn = roundTurnOrder.slice(0, currentPlayerIndex).includes(removedPlayerIndex);
-        if (hasTakenTurn){       
-             players[index].active = false; // Mark the player as inactive
-             console.log("Player set to inactive but remains in this round.");
-        } else {
-                 const roundTurnOrderIndex = roundTurnOrder.indexOf(removedPlayerIndex);
-                 if (roundTurnOrderIndex !== -1) {
-                   roundTurnOrder.splice(roundTurnOrderIndex, 1);
-               }
-               players.splice(index, 1);
-               playerRoundData.splice(index, 1);
+  showSettingsMenu(); // Refresh the settings list (will automatically hide inactive ones)
+  if (gameState === 'setup') checkStartGameButtonState();
 
-                // Update roundTurnOrder indices
-                for (let i = 0; i < roundTurnOrder.length; i++) {
-                    if (roundTurnOrder[i] > index) {
-                        roundTurnOrder[i]--;
-                    }
-                }
+  // Handle game state implications (e.g., if currentPlayer was removed)
+  if (gameState !== 'setup' && gameState !== 'roundOver') {
+      const activePlayersInGame = players.filter(p => p.active).length;
+      if (activePlayersInGame === 0) {
+          // Handle game over or reset
+          alert("Alle spelers zijn verwijderd of inactief. Spel stopt.");
+          setupFaseDiv.style.display = 'flex';
+          spelFaseDiv.style.display = 'none';
+          gameState = 'setup';
+          players = []; // Full reset
+          playerRoundData = {};
+          roundTurnOrder = [];
+          currentRound = 0;
+          return;
+      }
 
-                   if (index < currentPlayerIndex) {
-                    currentPlayerIndex--;
-                }
-                     if (currentPlayerIndex >= players.length && players.length > 0) {
-                    currentPlayerIndex = 0; // Or handle differently based on desired behavior
-                }
-       }
-
-       setupPlayerTurn(); // Adjust to the next player
-    }
-
-    showSettingsMenu(); // Refresh the list
-    checkStartGameButton();
+      if (!playerHasTakenTurnThisRound && playerIdToRemove === currentPlayerId) {
+          // Current player was removed *before* completing their turn. Advance.
+           hideMessage();
+           // `advanceToNextPlayer` will find the next valid player.
+           // No need to manually set gameState to 'turnOver', advanceToNextPlayer will handle it.
+           advanceToNextPlayer();
+      } else if (checkRoundEnd()) {
+          // Removing a player (or marking them inactive) might complete the round.
+          endRound();
+      }
+      // If current player was marked inactive (playerHasTakenTurnThisRound = true),
+      // their turn effectively ends. If it was their go, advanceToNextPlayer will be called by endPlayerTurn/main button.
+  }
 }
 
-function checkStartGameButton() {
-    startGameBtn.disabled = players.length === 0;
-}
 
-checkStartGameButton();
+// Initial checks
+checkStartGameButtonState();
 hideMessage();
-
-function updateLongestTurnDrinkEnabled() {
-    const checkbox = document.getElementById('longest-turn-drink-enabled');
-    longestTurnDrinkEnabled = checkbox.checked;
-}

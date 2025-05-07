@@ -1,135 +1,138 @@
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:4156459990.
-// Suggested code may be subject to a license. Learn more: ~LicenseLog:2329013320.
 // --- Sound Playback Helper ---
 function playSound(audioElement) {
-    if (audioElement) {
+    if (audioElement && typeof audioElement.play === 'function') {
         audioElement.currentTime = 0;
         audioElement.play().catch(error => {
-            console.error("Error playing sound:", error);
+            // console.error("Error playing sound:", error); // Avoid log noise for user interactions
         });
     } else {
-        console.warn("Attempted to play a null audio element.");
+        // console.warn("Attempted to play an invalid audio element.");
     }
 }
 
-// --- Helper Functions ---
+// --- Text Helpers ---
 function pluralizeSlok(count) {
     return count === 1 ? "slok" : "slokken";
 }
 
-function generateGUID() { // RFC4122 compliant GUID generator
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
-    }
-
-function formatDuration(totalMilliseconds) {
-    const totalSeconds = Math.round(totalMilliseconds / 1000); // Round to the nearest second
-    const hours = Math.floor(totalSeconds / 3600); // Calculate hours
-    const minutes = Math.floor((totalSeconds % 3600) / 60); // Calculate remaining minutes
-    const seconds = totalSeconds % 60; // Calculate remaining seconds
-  
-    let formattedDuration = ""; // Initialize an empty string
-  
-    if (hours > 0) { // If there are hours
-      formattedDuration += `${hours}h`; // Add hours
-    }
-    if (minutes > 0) { // If there are minutes
-      formattedDuration += `${hours > 0 ? " " : ""}${minutes}m`; // Add minutes, include a space if hours are present
-    }
-    if (seconds > 0) { // If there are seconds
-      formattedDuration += `${hours > 0 || minutes > 0 ? " " : ""}${seconds}s`; // Add seconds, include a space if hours or minutes are present
-    }
-    if (hours === 0 && minutes === 0 && seconds === 0) {
-      formattedDuration = "0s";
-    }
-    return formattedDuration;
-}
-
-
-
 function numberToWord(num) {
-    const words = ["nul", "één", "twee", "drie", "vier", "vijf", "zes"];
+    const words = ["nul", "één", "twee", "drie", "vier", "vijf", "zes"]; // Assuming up to 6 for dice/mex counts
     return words[num] || num.toString();
 }
 
+// --- GUID Generator ---
+function generateGUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
+// --- Duration Formatter ---
+function formatDuration(totalMilliseconds) {
+    if (isNaN(totalMilliseconds) || totalMilliseconds < 0) return "0s";
+    const totalSeconds = Math.round(totalMilliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    let formattedDuration = "";
+    if (hours > 0) formattedDuration += `${hours}u `;
+    if (minutes > 0) formattedDuration += `${minutes}m `;
+    if (seconds > 0 || formattedDuration === "") formattedDuration += `${seconds}s`;
+    
+    return formattedDuration.trim() || "0s";
+}
+
+// --- UI Message Helpers ---
 function showTemporaryMessage(msg, type = 'info') {
-    messageAreaDiv.innerHTML = msg;
-    messageAreaDiv.style.visibility = 'visible'
-    messageAreaDiv.className = 'message-area visible';
+    messageAreaDiv.innerHTML = msg; // Assuming msg is safe or sanitized if from user input
+    messageAreaDiv.className = 'message-area visible'; // Reset classes then add
     if (type === 'special') {
         messageAreaDiv.classList.add('special');
     }
+    // Ensure the wrapper has a defined min-height or the message area itself.
+    // messageAreaDiv.style.visibility = 'visible'; // Already handled by 'visible' class
 }
 
 function hideMessage() {
     messageAreaDiv.style.visibility = 'hidden';
-    messageAreaDiv.style.heigth = "45.6px"
+    messageAreaDiv.classList.remove('visible', 'special');
+    messageAreaDiv.innerHTML = ''; // Clear content
 }
 
-function handleBackgroundClick(event) {
-    // Only trigger roll if game is in 'playing' state AND main button is enabled
-    if (gameState === 'playing' && !mainActionBtn.disabled) {
-        const target = event.target;
-        const isDie = target.closest('.die');
-        const isMainActionButton = target.closest('#main-action-btn'); // Check main button
-        const isShowLowestButton = target.closest('#show-lowest-btn');
-        const isResultsArea = target.closest('#ronde-resultaten');
-        const isSettingsButton = target.closest('.settings-button'); // Check settings button
-
-        // Trigger roll only if not clicking on interactive elements
-        if (!isDie && !isMainActionButton && !isShowLowestButton && !isResultsArea && !isSettingsButton) {
-            console.log("Background click triggered roll");
-            startRollAnimation();
-        }
-    }
-    // Background click no longer advances turn
-}
-
-function showLowestScoreInfo() {
-    playSound(soundShowLowest); // Play specific sound
-    if (roundLowestScore === Infinity) {
-       showTemporaryMessage("Nog geen laagste score bepaald in deze ronde.");
-   } else {
-        let lowestScoreDisplay;
-        if (roundLowestScore === 1000) {
-            lowestScoreDisplay = "Mex";
-        } else if (roundLowestPlayerIndices.length > 0 && playerRoundData[roundLowestPlayerIndices[0]]) {
-            const firstLowestPlayer = playerRoundData[roundLowestPlayerIndices[0]];
-            const lastValidThrow = firstLowestPlayer.throwsHistory.slice().reverse().find(t => t.scoreResult.type !== 'special');
-             if(lastValidThrow && lastValidThrow.scoreResult.value === roundLowestScore){
-                 lowestScoreDisplay = lastValidThrow.scoreResult.display;
-             } else {
-                  // Attempt to find display value from *any* player with that score
-                  let foundDisplay = null;
-                  for (let idx of roundLowestPlayerIndices) {
-                      const pData = playerRoundData[idx];
-                      const throwWithScore = pData?.throwsHistory.slice().reverse().find(t => t.scoreResult.value === roundLowestScore && t.scoreResult.type === 'normal');
-                      if (throwWithScore) {
-                          foundDisplay = throwWithScore.scoreResult.display;
-                          break;
-                      }
-                  }
-                  lowestScoreDisplay = foundDisplay || roundLowestScore.toString();
-             }
-        } else {
-             lowestScoreDisplay = roundLowestScore.toString();
-        }
-
-        const lowestPlayerNames = roundLowestPlayerIndices.map(i => playerRoundData[i]?.name || 'Onbekend').join(', ');
-       showTemporaryMessage(`Huidige laagste score: ${lowestScoreDisplay} (van ${lowestPlayerNames})`);
-   }
+// --- Game Flow Helpers ---
+function checkStartGameButtonState() {
+    // A game needs at least one player to start.
+    startGameBtn.disabled = players.length < 1;
 }
 
 function handleMainButtonClick() {
-   if (gameState === 'playing') {
-       startRollAnimation(); // Start dice roll
-   } else if (gameState === 'turnOver') {
-       advanceToNext(); // Move to next player or end round
-   }
+    switch (gameState) {
+        case 'playing':
+            startRollAnimation();
+            break;
+        case 'turnOver':
+            advanceToNextPlayer();
+            break;
+        case 'roundOver': // This case might not be hit if nextRoundBtn is primary
+            console.warn("Main action button clicked in 'roundOver' state. This should typically be handled by 'Next Round' button.");
+            // endRound(); // Not typical, endRound is usually called by game logic
+            break;
+        default:
+            console.warn(`Main action button clicked in unhandled state: ${gameState}`);
+    }
 }
 
-function checkStartGameButton() {
-    startGameBtn.disabled = players.length < 2;
+function showLowestScoreInfo() {
+    playSound(soundShowLowest);
+    if (roundLowestScore === Infinity || currentRoundLowestPlayerIds.length === 0) {
+        showTemporaryMessage("Nog geen laagste score bepaald in deze ronde.");
+        return;
+    }
+
+    let lowestScoreDisplay = "";
+    if (roundLowestScore === 1000) { // Mex score
+        lowestScoreDisplay = "Mex";
+    } else {
+        // Try to find the display value from one of the players who achieved this lowest score
+        const firstLowestPlayerId = currentRoundLowestPlayerIds[0];
+        const playerData = playerRoundData[firstLowestPlayerId];
+        if (playerData && playerData.throwsHistory) {
+            const lastValidThrow = playerData.throwsHistory
+                .slice()
+                .reverse()
+                .find(t => t.scoreResult.value === roundLowestScore && t.scoreResult.type !== 'special');
+            if (lastValidThrow) {
+                lowestScoreDisplay = lastValidThrow.scoreResult.display;
+            }
+        }
+        if (!lowestScoreDisplay) { // Fallback if display not found
+            lowestScoreDisplay = roundLowestScore.toString();
+        }
+    }
+
+    const lowestPlayerNames = currentRoundLowestPlayerIds
+        .map(id => playerRoundData[id]?.name || 'Onbekende speler')
+        .join(', ');
+    showTemporaryMessage(`Huidige laagste score: ${lowestScoreDisplay} (van ${lowestPlayerNames})`);
+}
+
+// --- Event Delegation for Background Click ---
+function handleBackgroundClick(event) {
+    if (gameState === 'playing' && !mainActionBtn.disabled) {
+        const target = event.target;
+        // Check if the click is on an interactive element that shouldn't trigger a roll
+        const isDie = target.closest('.die');
+        const isButton = target.closest('button'); // General check for any button
+        const isInput = target.closest('input');
+        const isSelect = target.closest('select');
+        const isLink = target.closest('a');
+        const isSettingsMenu = target.closest('.settings-menu-content'); // Prevent roll if settings menu is open & clicked inside
+
+        if (!isDie && !isButton && !isInput && !isSelect && !isLink && !isSettingsMenu) {
+            startRollAnimation();
+        }
+    }
 }

@@ -1,343 +1,377 @@
-function startNewRound() {
-    // --- START: Clear announcement and class ---
-    const announcementDiv = document.getElementById('lowest-score-announcement');
-        // Get the messageWrapper element
-    const messageWrapper = document.getElementById('message-wrapper');
-    messageWrapper.style.display = '';
-    if (announcementDiv) announcementDiv.textContent = '';
-    rondeResultatenDiv.classList.remove('showing-results');
-    // --- END: Clear announcement and class ---
-   rondeResultatenDiv.style.display = 'none'; // Hide results (existing line)
-   nextRoundBtn.disabled = true;
-   hideMessage();
-
-   // --- Show Game Elements ---
-   diceContainer.style.display = 'flex';
-   spelInfoDiv.style.display = 'flex';
-   scoreDisplayDiv.style.display = 'block';
-   actieKnoppenDiv.style.display = 'flex'; // Show container for buttons
-
-   currentRound++;
-   rondeTitel.textContent = `Ronde ${currentRound}`;
-   roundThrowsLimit = 3;
-   mexCountThisRound = 0;
-   roundLowestScore = Infinity;
-   roundLowestPlayerIndices = [];
-   onlyMexRolledSoFar = true;
-   overtakenPlayersMap = new Map();
-   lockedDieIndex = null;
-
-    // Filter out inactive players
-    const activePlayers = players.filter(player => player.active);
-
-    // Update the players array with only active players
-    players = activePlayers;
-
-    // Update playerRoundData to only include active players
-        playerRoundData = activePlayers.map((p, index) => ({
-            name: p.name,
-            id: index,
-            scoreDisplay: null,
-            drinksToTake: 0,
-            finalThrowValue: null,
-            throwsHistory: [],
-            drinksGivenFrom31: 0,
-            drinksTakenFrom32: 0,
-            isActive: true // All players are active at the start of the round
-        }));
-
-   // Determine Turn Order with active players only
-   roundTurnOrder = [];
-   if (lastRoundLowestIndices.length > 0) {
-       // Filter out any indices that are no longer active players
-       const activeLowestIndices = lastRoundLowestIndices.filter(idx => 
-           players[idx] && players[idx].active !== false);
-       
-       if (activeLowestIndices.length > 0) {
-           const startingPlayerIndex = activeLowestIndices[0];
-           roundTurnOrder.push(startingPlayerIndex);
-           
-           // Add remaining active players in circular order
-           let addedCount = 1;
-           let currentIndex = (startingPlayerIndex + 1) % players.length;
-           
-           while (addedCount < players.length) {
-               // Skip inactive players
-               if (players[currentIndex] && players[currentIndex].active !== false) {
-                   if (!activeLowestIndices.includes(currentIndex) || 
-                       (activeLowestIndices.includes(currentIndex) && !roundTurnOrder.includes(currentIndex))) {
-                       roundTurnOrder.push(currentIndex);
-                       addedCount++;
-                   }
-               }
-               
-               // Check if we need to add remaining lowest players
-               if (currentIndex === startingPlayerIndex && addedCount < players.length) {
-                   activeLowestIndices.slice(1).forEach(idx => {
-                       if (!roundTurnOrder.includes(idx)) {
-                           roundTurnOrder.push(idx);
-                           addedCount++;
-                       }
-                   });
-               }
-               
-               currentIndex = (currentIndex + 1) % players.length;
-               
-               // Safety check to prevent infinite loops
-               if (addedCount >= players.length) break;
-           }
-       } else {
-           // If no active lowest indices, just use all active player indices
-           roundTurnOrder = [...Array(players.length).keys()];
-       }
-   } else {
-       // Initial round: just use all active player indices
-        roundTurnOrder = [...Array(players.length).keys()];
-   }
-   
-   // Ensure all active players are included in the turn order
-   if (roundTurnOrder.length !== players.length) {
-       console.warn("Turn order correction: Adding missing active players");
-        for (let i = 0; i < players.length; i++) {
-            if (!roundTurnOrder.includes(i)) {
-                roundTurnOrder.push(i);
-            }
-        }
-   }
-   
-   console.log("New Round Turn Order (indices):", roundTurnOrder);
-
-   // If no active players remain, handle the edge case
-   if (roundTurnOrder.length === 0) {
-       console.warn("No active players remain in the game!");
-       // You might want to add handling for this case - perhaps end the game?
-       return;
-   }
-
-   currentPlayerIndex = 0;
-   setupPlayerTurn();
+function createNewPlayerRoundData(playerName) {
+    return {
+        name: playerName,
+        scoreDisplay: null, // Display string of their final score for the round
+        drinksToTake: 0,    // Accumulated from various penalties
+        finalThrowValue: null, // Numerical value of their final score
+        throwsHistory: [],  // Array of { scoreResult } for each throw
+        drinksGivenFrom31: 0,
+        drinksTakenFrom32: 0,
+        isActive: true,     // Is player active for *this* round (can be set false if removed mid-round after playing)
+        turnDuration: 0,    // Time taken for their turn in ms
+        turnStartTime: 0    // Timestamp when turn started
+    };
 }
 
-function endRound() {
-    gameState = 'roundOver';
-    mainActionBtn.disabled = true; // Disable the main button
-    mainActionBtn.textContent = "Ronde Klaar"; // Update text
-    showLowestBtn.disabled = true;
-    // Get the messageWrapper element
-    const messageWrapper = document.getElementById('message-wrapper');
-    messageWrapper.style.display = 'none';
+function startNewRound() {
+    // Filter out globally inactive players permanently before starting a new round setup
+    players = players.filter(player => player.active);
+
+    if (players.length === 0) {
+        console.warn("startNewRound: No active players to start a new round!");
+        alert("Geen actieve spelers meer. Ga terug naar setup om spelers toe te voegen.");
+        gameState = 'setup';
+        setupFaseDiv.style.display = 'flex';
+        spelFaseDiv.style.display = 'none';
+        return;
+    }
+
+    currentRound++;
+    rondeTitel.textContent = `Ronde ${currentRound}`;
+
+    // Reset round-specific variables
+    roundThrowsLimit = 3;
+    mexCountThisRound = 0;
+    roundLowestScore = Infinity;
+    currentRoundLowestPlayerIds = []; // Renamed from roundLowestPlayerIndices to use IDs
+    onlyMexRolledSoFar = true;
+    overtakenPlayersMap.clear();
+    // lockedDieIndex is reset per turn
+
+    // Reset playerRoundData for all players in the `players` array (they are all active for this new round)
+    const newPlayerRoundData = {};
+    players.forEach(p => {
+        newPlayerRoundData[p.id] = createNewPlayerRoundData(p.name);
+        newPlayerRoundData[p.id].isActive = true; // Explicitly active for this round
+    });
+    playerRoundData = newPlayerRoundData;
+
+
+    // --- Determine Turn Order (Points 1 & 2) ---
+    roundTurnOrder = [];
+    const activePlayerIdsForNewRound = players.map(p => p.id); // All players in `players` are active at round start
+
+    if (currentRound === 1 || lastRoundLoserIds.length === 0) {
+        // Rule 1: First round or no designated loser from previous round
+        roundTurnOrder = [...activePlayerIdsForNewRound];
+    } else {
+        // Rule 2: Subsequent rounds - start with loser(s), then cycle through `players` array order
+        // Find the first loser ID that is still an active player
+        const startingPlayerId = lastRoundLoserIds.find(id => activePlayerIdsForNewRound.includes(id));
+
+        if (startingPlayerId) {
+            const startIndexInPlayersArray = players.findIndex(p => p.id === startingPlayerId); // Use master `players` array for cycling
+
+            if (startIndexInPlayersArray !== -1) {
+                // Add players from starting point to end of players array
+                for (let i = startIndexInPlayersArray; i < players.length; i++) {
+                    if (playerRoundData[players[i].id]?.isActive) { // Check round active status
+                        roundTurnOrder.push(players[i].id);
+                    }
+                }
+                // Add players from start of players array to starting point (wrap around)
+                for (let i = 0; i < startIndexInPlayersArray; i++) {
+                    if (playerRoundData[players[i].id]?.isActive) { // Check round active status
+                        roundTurnOrder.push(players[i].id);
+                    }
+                }
+            } else {
+                // Fallback: starting player (loser) is no longer in the game or active globally
+                roundTurnOrder = [...activePlayerIdsForNewRound];
+            }
+        } else {
+            // Fallback: No valid loser ID found (e.g., all losers became inactive)
+            roundTurnOrder = [...activePlayerIdsForNewRound];
+        }
+    }
+    
+    // Safety check: ensure all active players for the round are in the turn order exactly once
+    const finalTurnOrderCheck = [];
+    activePlayerIdsForNewRound.forEach(id => {
+        if (roundTurnOrder.includes(id) && !finalTurnOrderCheck.includes(id)) {
+            finalTurnOrderCheck.push(id);
+        }
+    });
+    // If roundTurnOrder somehow got messed up, rebuild from active players.
+    // This also ensures that if roundTurnOrder was shorter (e.g. due to only adding a subset above), it gets fixed.
+    if (finalTurnOrderCheck.length !== activePlayerIdsForNewRound.length) {
+        console.warn("Turn order discrepancy fixed. Original:", roundTurnOrder, "Active:", activePlayerIdsForNewRound);
+        roundTurnOrder = [];
+        const tempStartingId = (currentRound > 1 && lastRoundLoserIds.length > 0) ? lastRoundLoserIds.find(id => activePlayerIdsForNewRound.includes(id)) : null;
+        const tempStartIndex = tempStartingId ? players.findIndex(p => p.id === tempStartingId) : 0;
+
+        for (let i = 0; i < activePlayerIdsForNewRound.length; i++) {
+            const playerIndexInMaster = (tempStartIndex + i) % activePlayerIdsForNewRound.length;
+            const masterPlayerOrderRefId = players[playerIndexInMaster]?.id; // Get ID from master player list
+            // Find this ID in the active players for this round to maintain cyclical order from master
+            if (activePlayerIdsForNewRound.includes(masterPlayerOrderRefId)) {
+                 roundTurnOrder.push(masterPlayerOrderRefId);
+            }
+        }
+        // If some active players are still missing, append them (should not happen with above logic)
+        activePlayerIdsForNewRound.forEach(id => {
+            if (!roundTurnOrder.includes(id)) roundTurnOrder.push(id);
+        });
+
+    }
+
+
+    if (roundTurnOrder.length === 0 && activePlayerIdsForNewRound.length > 0) {
+        console.error("CRITICAL: Turn order is empty but active players exist. Defaulting to player order.");
+        roundTurnOrder = [...activePlayerIdsForNewRound];
+    }
+    if (roundTurnOrder.length === 0) { // Should be caught by players.length === 0 earlier
+        console.error("CRITICAL: No players in turn order after setup!");
+        // Game cannot proceed, perhaps go back to setup
+        return;
+    }
+    
+    currentPlayerId = roundTurnOrder[0];
+
+    // UI Updates for new round
+    rondeResultatenDiv.style.display = 'none';
+    rondeResultatenDiv.classList.remove('showing-results');
+    document.getElementById('lowest-score-announcement').textContent = '';
+    document.getElementById('longest-turn-announcement').textContent = '';
+    nextRoundBtn.disabled = true;
     hideMessage();
 
-    // --- Hide Game Elements ---
-    diceContainer.style.display = 'none';
-    spelInfoDiv.style.display = 'none';
-    scoreDisplayDiv.style.display = 'none';
-    actieKnoppenDiv.style.display = 'none'; // Hide the button container
+    diceContainer.style.display = 'flex';
+    spelInfoDiv.style.display = 'flex';
+    scoreDisplayDiv.style.display = 'block';
+    actieKnoppenDiv.style.display = 'flex';
+    document.getElementById('message-wrapper').style.display = '';
 
-    let drinksMultiplier = Math.pow(2, mexCountThisRound);
-    let actionMessages = [];
-    let scoreHTML = "<strong>Worp details</strong><br>";
-    let actualRoundLowestNormalScoreValue = Infinity;
-    let lowestScoreDisplayValue = null;
-    let drinksForLowest = 0; // Initialize drinks for lowest score penalty
-    let lowestPlayersForPenalty = []; // Initialize list of players taking penalty
-    let lowestPlayerIndicesForPenalty = []; // Initialize list of player indices taking penalty
+    setupPlayerTurn();
+}
 
-     // --- Calculate Drinks & Actions ---
-    // 1. Process 31/32 drinks
-    playerRoundData.forEach((data, playerIndex) => {
-        if (data.drinksGivenFrom31 > 0) actionMessages.push(`<strong>${data.name}</strong> deelt ${data.drinksGivenFrom31} ${pluralizeSlok(data.drinksGivenFrom31)} uit (31)`);
-        if (data.drinksTakenFrom32 > 0) actionMessages.push(`<strong>${data.name}</strong> drinkt ${data.drinksTakenFrom32} ${pluralizeSlok(data.drinksTakenFrom32)} (32)`);
+function checkRoundEnd() {
+    // Rule 6 implicitly handled by advanceToNextPlayer.
+    // This function now checks if all players in the turn order who are *supposed* to play this round
+    // have indeed completed their turn or are marked inactive for the round.
+    if (players.length === 0) return true;
 
-    });
+    for (const playerId of roundTurnOrder) {
+        const pData = playerRoundData[playerId];
+        const pGlobal = players.find(p => p.id === playerId); // Check global status too
 
-    // 2. Process Accumulated Overtake Drinks
+        // If player is supposed to be in this round (pData exists) AND
+        // they are globally active AND active for this round AND haven't finished their turn
+        if (pData && pGlobal?.active && pData.isActive && pData.finalThrowValue === null) {
+            return false; // Found an active player yet to complete their turn
+        }
+    }
+    return true; // All players have completed their turns or are inactive for this round
+}
+// --- endRound function broken down ---
+
+function calculateSpecialActionMessages() {
+    const messages = [];
+    for (const playerId in playerRoundData) {
+        const pData = playerRoundData[playerId];
+        if (!pData.isActive && !pData.throwsHistory.length > 0) continue; // Skip fully inactive with no history for this round
+
+        if (pData.drinksGivenFrom31 > 0) {
+            messages.push(`<strong>${pData.name}</strong> deelt ${pData.drinksGivenFrom31} ${pluralizeSlok(pData.drinksGivenFrom31)} uit (31)`);
+        }
+        if (pData.drinksTakenFrom32 > 0) {
+            messages.push(`<strong>${pData.name}</strong> drinkt ${pData.drinksTakenFrom32} ${pluralizeSlok(pData.drinksTakenFrom32)} (32)`);
+        }
+    }
+    return messages;
+}
+
+function calculateOvertakeMessagesAndUpdateDrinks() {
+    const messages = [];
     if (overtakenPlayersMap.size > 0) {
-        overtakenPlayersMap.forEach((totalOvertakeDrinks, playerIndex) => {
-            if (playerRoundData[playerIndex]) {
-                const overtakenPlayerName = playerRoundData[playerIndex].name;
-                const overtakenScoreApprox = playerRoundData[playerIndex].scoreDisplay || '?';
-                actionMessages.push(`<strong>${overtakenPlayerName}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (${overtakenScoreApprox} laag overgenomen)`);
-                playerRoundData[playerIndex].drinksToTake += totalOvertakeDrinks;
-            } else {
-                 console.error("Overtaken player index out of bounds:", playerIndex);
+        overtakenPlayersMap.forEach((totalOvertakeDrinks, playerId) => {
+            const overtakenPlayerData = playerRoundData[playerId];
+            if (overtakenPlayerData) {
+                messages.push(`<strong>${overtakenPlayerData.name}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (laag overgenomen)`);
+                overtakenPlayerData.drinksToTake += totalOvertakeDrinks;
             }
         });
     }
+    return messages;
+}
 
-    // 3. Process Lowest Score Penalty
-    if (roundLowestPlayerIndices.length > 0 && roundLowestScore !== Infinity) {
-         drinksForLowest = 1 * drinksMultiplier; // Calculate penalty drinks here
+function calculateLowestScorePenalty(drinksMultiplier) {
+    const messages = [];
+    let lowestScoreDisplayForMessage = "";
+    let actualLowestPlayerIdsForPenalty = []; // IDs of those who specifically drink for lowest score
 
-         let displayScoreForMsg = "";
-          if (roundLowestScore === 1000) {
-              displayScoreForMsg = "Mex";
-          } else {
-               for(let i = 0; i < playerRoundData.length; i++) {
-                   const pData = playerRoundData[i];
-                   const finalThrow = pData.throwsHistory.slice().reverse().find(t => t.scoreResult.type !== 'special');
-                   if(finalThrow && finalThrow.scoreResult.type === 'normal' && finalThrow.scoreResult.value === roundLowestScore) {
-                       lowestScoreDisplayValue = finalThrow.scoreResult.display;
-                       displayScoreForMsg = lowestScoreDisplayValue;
-                       break;
-                   }
-               }
-               if (!displayScoreForMsg) displayScoreForMsg = roundLowestScore.toString();
-           }
+    if (currentRoundLowestPlayerIds.length > 0 && roundLowestScore !== Infinity) {
+        const drinksForLowest = 1 * drinksMultiplier;
 
-
-         roundLowestPlayerIndices.forEach(index => {
-             if (!overtakenPlayersMap.has(index)) { // Only apply penalty if not already penalized for being overtaken
-                 if (playerRoundData[index]) {
-                     playerRoundData[index].drinksToTake += drinksForLowest;
-                     lowestPlayersForPenalty.push(`<strong>${playerRoundData[index].name}</strong>`);
-                     lowestPlayerIndicesForPenalty.push(index);
-                 }
-             }
-         });
-
-         if (lowestPlayersForPenalty.length > 0) {
-             if (lowestPlayersForPenalty.length === 1) {
-                 actionMessages.push(`${lowestPlayersForPenalty[0]} laagste score (${displayScoreForMsg}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}`);
-             } else {
-                 actionMessages.push(`Gelijkspel laagste score (${displayScoreForMsg}): ${lowestPlayersForPenalty.join(', ')} drinken elk ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}`);
-             }
-         }
-    }
-    else if (roundLowestScore === Infinity && overtakenPlayersMap.size === 0) {
-         actionMessages.push("Geen geldige laagste score bepaald deze ronde.");
-    }
-
-    // 4. Find player with maximum turn duration
-    let maxDuration = 0;
-    let maxDurationPlayerIndex = null;
-
-    playerRoundData.forEach((playerData, index) => {
-        if (playerData.turnDuration > maxDuration) {
-            maxDuration = playerData.turnDuration;
-            maxDurationPlayerIndex = index;
-        }
-    });
-
-    // 5. Apply penalty to player with maximum turn duration
-    if (longestTurnDrinkEnabled && maxDurationPlayerIndex !== null) {
-        playerRoundData[maxDurationPlayerIndex].drinksToTake += drinksForLowest;
-        const duration = formatDuration(playerRoundData[maxDurationPlayerIndex].turnDuration);
-        actionMessages.push(`<strong>${playerRoundData[maxDurationPlayerIndex].name}</strong> atje des (${duration}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}!`);
-    }
-
-    // --- Add logic for longest turn announcement ---
-    const longestTurnAnnouncementDiv = document.getElementById('longest-turn-announcement');
-    if (longestTurnDrinkEnabled && maxDurationPlayerIndex !== null) {
-        const longestTurnPlayerName = playerRoundData[maxDurationPlayerIndex].name;
-        const duration = formatDuration(playerRoundData[maxDurationPlayerIndex].turnDuration);
-        longestTurnAnnouncementDiv.style.display = '';
-        longestTurnAnnouncementDiv.textContent = `${longestTurnPlayerName} atje des, ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}!`;
-    } else longestTurnAnnouncementDiv.style.display = 'none';
-
-    // --- Build Action Display HTML ---
-     let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
-     actionsHTML += '<div class="actions-section">';
-     actionsHTML += actionMessages.length > 0 ? actionMessages.join('<br>') : "Geen speciale acties deze ronde.";
-     if (mexCountThisRound > 0) {
-          const mexWord = numberToWord(mexCountThisRound);
-         actionsHTML += `<br><em>(${pluralizeSlok(2)} x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
-     }
-     actionsHTML += '</div>';
-    resultatenActiesDiv.innerHTML = actionsHTML; // RENDER ACTIONS FIRST
-
-
-    // --- Build and Render Score History HTML (in Turn Order) ---
-    for (let i = 0; i < roundTurnOrder.length; i++) {
-         const actualPlayerIndex = roundTurnOrder[i];
-         const data = playerRoundData[actualPlayerIndex];
-
-         scoreHTML += `<div class="score-section">`;
-         
-        if (longestTurnDrinkEnabled) {
-            scoreHTML += `<div class="player-name-score"> <strong>${data.name}</strong> (${formatDuration(data.turnDuration)}):</div>`;
+        if (roundLowestScore === 1000) {
+            lowestScoreDisplayForMessage = "Mex";
         } else {
-            scoreHTML += `<div class="player-name-score"> <strong>${data.name}</strong>:</div>`;
+            // Find the display value from one of the players who got this score
+            const pDataExample = playerRoundData[currentRoundLowestPlayerIds[0]];
+            const throwExample = pDataExample?.throwsHistory.slice().reverse().find(t => t.scoreResult.value === roundLowestScore && t.scoreResult.type === 'normal');
+            lowestScoreDisplayForMessage = throwExample ? throwExample.scoreResult.display : roundLowestScore.toString();
         }
-         scoreHTML += `<span class="throw-history" data-player-index="${data.id}">`; // Use original ID
 
-         let finalThrowIndex = -1;
-         if (data.throwsHistory.length > 0) {
-             for(let j = data.throwsHistory.length - 1; j >= 0; j--) {
-                 if(data.throwsHistory[j].scoreResult.type !== 'special') {
-                     finalThrowIndex = j;
+        currentRoundLowestPlayerIds.forEach(playerId => {
+            // Only apply penalty if not already penalized for being overtaken (map has precedence)
+            if (playerRoundData[playerId] && !overtakenPlayersMap.has(playerId)) {
+                playerRoundData[playerId].drinksToTake += drinksForLowest;
+                actualLowestPlayerIdsForPenalty.push(playerId);
+            }
+        });
+        
+        if (actualLowestPlayerIdsForPenalty.length > 0) {
+            const playerNames = actualLowestPlayerIdsForPenalty.map(id => `<strong>${playerRoundData[id].name}</strong>`).join(', ');
+            messages.push(`${playerNames} ${actualLowestPlayerIdsForPenalty.length > 1 ? 'hebben' : 'heeft'} laagste score (${lowestScoreDisplayForMessage}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}`);
+        }
+        return { messages, lowestScoreDisplayForMessage, actualLowestPlayerIdsForPenalty };
+    }
+    return { messages: (roundLowestScore === Infinity && overtakenPlayersMap.size === 0) ? ["Geen geldige laagste score bepaald deze ronde."] : [], lowestScoreDisplayForMessage: "", actualLowestPlayerIdsForPenalty };
+}
+
+
+function calculateLongestTurnPenalty(drinksMultiplier) {
+    const messages = [];
+    let longestTurnPlayerId = null;
+    if (longestTurnDrinkEnabled) {
+        let maxDuration = -1;
+        for (const playerId in playerRoundData) {
+            const pData = playerRoundData[playerId];
+            if (pData.isActive && pData.turnDuration > maxDuration) { // Only consider active players for this penalty
+                maxDuration = pData.turnDuration;
+                longestTurnPlayerId = playerId;
+            }
+        }
+
+        if (longestTurnPlayerId && playerRoundData[longestTurnPlayerId].turnDuration > 0) { // ensure there was a turn
+            const drinksForLongest = 1 * drinksMultiplier; // Same as lowest score penalty amount
+            playerRoundData[longestTurnPlayerId].drinksToTake += drinksForLongest;
+            const durationStr = formatDuration(playerRoundData[longestTurnPlayerId].turnDuration);
+            messages.push(`<strong>${playerRoundData[longestTurnPlayerId].name}</strong> atje des (${durationStr}), ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`);
+            
+            // Update specific announcement div
+            const longestTurnAnnouncementDiv = document.getElementById('longest-turn-announcement');
+            longestTurnAnnouncementDiv.textContent = `${playerRoundData[longestTurnPlayerId].name} atje des, ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`;
+            longestTurnAnnouncementDiv.style.display = 'block';
+        } else {
+             document.getElementById('longest-turn-announcement').style.display = 'none';
+        }
+    } else {
+        document.getElementById('longest-turn-announcement').style.display = 'none';
+    }
+    return messages;
+}
+
+function buildScoresHtml() {
+    let scoreHTML = "<strong>Worp details</strong><br>";
+    roundTurnOrder.forEach(playerId => {
+        const pData = playerRoundData[playerId];
+        if (!pData) { // Should not happen if data is synced
+            console.warn("buildScoresHtml: Player data not found for ID:", playerId);
+            return;
+        }
+
+        scoreHTML += `<div class="score-section">`;
+        let playerNameDisplay = `<strong>${pData.name}</strong>`;
+        if (longestTurnDrinkEnabled) {
+            playerNameDisplay += ` (${formatDuration(pData.turnDuration)})`;
+        }
+        scoreHTML += `<div class="player-name-score">${playerNameDisplay}:</div>`;
+        scoreHTML += `<span class="throw-history" data-player-id="${playerId}">`;
+
+        if (pData.throwsHistory.length > 0) {
+            let finalNonSpecialThrowIndex = -1;
+            for(let j = pData.throwsHistory.length - 1; j >= 0; j--) {
+                 if(pData.throwsHistory[j].scoreResult.type !== 'special') {
+                     finalNonSpecialThrowIndex = j;
                      break;
                  }
              }
 
-             data.throwsHistory.forEach((throwData, index) => {
-                 const scoreStr = throwData.scoreResult.display;
-                 let classes = [];
-                 if (index === finalThrowIndex) classes.push('final-throw');
-                 if (throwData.scoreResult.type === 'special') classes.push('special-throw');
-                 scoreHTML += `<span class="${classes.join(' ')}" data-score-value="${throwData.scoreResult.value}" data-score-type="${throwData.scoreResult.type}">${scoreStr}</span>`;
-             });
-         } else {
-             scoreHTML += ` (Geen geldige worpen)`;
-         }
-         scoreHTML += `</span></div>`;
-     }
-    resultatenScoresDiv.innerHTML = scoreHTML; // RENDER HISTORY SECOND
+            pData.throwsHistory.forEach((throwData, index) => {
+                const scoreStr = throwData.scoreResult.display;
+                let classes = [];
+                if (index === finalNonSpecialThrowIndex) classes.push('final-throw');
+                if (throwData.scoreResult.type === 'special') classes.push('special-throw');
+                scoreHTML += `<span class="${classes.join(' ')}" data-score-value="${throwData.scoreResult.value}" data-score-type="${throwData.scoreResult.type}">${scoreStr}</span>`;
+            });
+        } else {
+            scoreHTML += ` (Geen geldige worpen deze ronde)`;
+        }
+        scoreHTML += `</span></div>`;
+    });
+    return scoreHTML;
+}
 
+function endRound() {
+    gameState = 'roundOver';
+    mainActionBtn.disabled = true;
+    mainActionBtn.textContent = "Ronde Klaar";
+    showLowestBtn.disabled = true;
+    document.getElementById('message-wrapper').style.display = 'none';
+    hideMessage();
 
-     // --- Highlight Lowest Scores in Rendered History ---
-     if (lowestScoreDisplayValue !== null && roundLowestScore !== 1000) {
-          // Use lowestPlayerIndicesForPenalty to ensure only those who actually drink are highlighted
-          lowestPlayerIndicesForPenalty.forEach(playerIndex => {
-              const playerHistorySpan = resultatenScoresDiv.querySelector(`.throw-history[data-player-index="${playerIndex}"]`);
-              if (playerHistorySpan) {
-                  const finalThrowSpan = playerHistorySpan.querySelector('.final-throw');
-                  // Double-check if the final throw actually matches the lowest display value
-                  if (finalThrowSpan && finalThrowSpan.textContent === lowestScoreDisplayValue && finalThrowSpan.dataset.scoreType === 'normal') {
-                      finalThrowSpan.classList.add('lowest-score-highlight');
-                  } else {
-                      // Fallback or alternative highlighting if needed, e.g., if the final throw was special
-                      console.log(`Could not highlight final throw for ${playerRoundData[playerIndex]?.name} with score ${lowestScoreDisplayValue}`)
-                  }
-              }
-          });
-     }
+    // Hide game elements
+    diceContainer.style.display = 'none';
+    spelInfoDiv.style.display = 'none';
+    scoreDisplayDiv.style.display = 'none';
+    actieKnoppenDiv.style.display = 'none';
 
+    const drinksMultiplier = Math.pow(2, mexCountThisRound);
+    let allActionMessages = [];
 
-    // --- START: Add logic for lowest score announcement ---
+    allActionMessages.push(...calculateSpecialActionMessages());
+    allActionMessages.push(...calculateOvertakeMessagesAndUpdateDrinks());
+    
+    const { messages: lowestScoreMessages, lowestScoreDisplayForMessage, actualLowestPlayerIdsForPenalty } = calculateLowestScorePenalty(drinksMultiplier);
+    allActionMessages.push(...lowestScoreMessages);
+    
+    allActionMessages.push(...calculateLongestTurnPenalty(drinksMultiplier));
+
+    // Build Action Display HTML
+    let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
+    actionsHTML += '<div class="actions-section">';
+    actionsHTML += allActionMessages.length > 0 ? allActionMessages.join('<br>') : "Geen speciale acties deze ronde.";
+    if (mexCountThisRound > 0) {
+        const mexWord = numberToWord(mexCountThisRound);
+        actionsHTML += `<br><em>(Drankjes x${drinksMultiplier} door ${mexWord} Mex worp${mexCountThisRound > 1 ? 'en' : ''})</em>`;
+    }
+    actionsHTML += '</div>';
+    resultatenActiesDiv.innerHTML = actionsHTML;
+
+    // Build and Render Score History HTML
+    resultatenScoresDiv.innerHTML = buildScoresHtml();
+
+    // Highlight lowest scores in rendered history
+    if (lowestScoreDisplayForMessage && roundLowestScore !== 1000) {
+        actualLowestPlayerIdsForPenalty.forEach(playerId => {
+            const playerHistorySpan = resultatenScoresDiv.querySelector(`.throw-history[data-player-id="${playerId}"] .final-throw`);
+            if (playerHistorySpan && playerHistorySpan.textContent === lowestScoreDisplayForMessage && playerHistorySpan.dataset.scoreType === 'normal') {
+                playerHistorySpan.classList.add('lowest-score-highlight');
+            }
+        });
+    }
+    
+    // Lowest score announcement banner
     const announcementDiv = document.getElementById('lowest-score-announcement');
-    let announcementMsg = "";
-
-    // Use the already calculated lowest player penalty info
-    if (lowestPlayersForPenalty.length > 0 && drinksForLowest > 0) {
-        // Get clean names (remove the <strong> tags used elsewhere)
-        const loserNames = lowestPlayersForPenalty.map(p => p.replace(/<\/?strong>/g, '')).join(' en ');
-        const slokText = pluralizeSlok(drinksForLowest);
-        announcementMsg = `${loserNames} laag - ${drinksForLowest} ${slokText}!`;
+    if (actualLowestPlayerIdsForPenalty.length > 0 && playerRoundData[actualLowestPlayerIdsForPenalty[0]].drinksToTake > 0) {
+         const loserNames = actualLowestPlayerIdsForPenalty.map(id => playerRoundData[id].name).join(' en ');
+         const penaltyDrinks = 1 * drinksMultiplier; // Base penalty before other additions
+         announcementDiv.textContent = `${loserNames} laag - ${penaltyDrinks} ${pluralizeSlok(penaltyDrinks)}!`;
     } else {
-         // Optionally display a message if no one has the lowest penalty (e.g., only overtakes)
-         // announcementMsg = "Geen directe laagste score straf.";
+        announcementDiv.textContent = ""; // Clear if no one drinks for lowest
     }
-
-    if (announcementDiv) {
-        announcementDiv.textContent = announcementMsg; // Use textContent for safety
-    }
-
-    // Add a class to the parent to control visibility via CSS
     rondeResultatenDiv.classList.add('showing-results');
-    // --- END: Add logic for lowest score announcement ---
-
-    // --- Insert and show Next Round Button ---
-    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader); // Insert before score details
-    nextRoundBtn.style.display = 'block'; // Make the button visible
-    nextRoundBtn.disabled = false; // Enable the button
 
 
-    // --- Prepare for Next Round ---
-    lastRoundLowestIndices = roundLowestPlayerIndices.length > 0 ? [...lowestPlayerIndicesForPenalty] : []; // Use the indices of those actually penalized
+    // Prepare for Next Round: store IDs of players who will start next, if any.
+    // These are the players who were penalized for the lowest score (and not overtaken).
+    lastRoundLoserIds = [...actualLowestPlayerIdsForPenalty];
 
 
-    // Show results container (existing line)
+    // Show results
     rondeResultatenDiv.style.display = 'block';
-} // End of endRound function
-
+    nextRoundBtn.style.display = 'block'; // Ensure button is part of flow
+    nextRoundBtn.disabled = false;
+    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader.nextSibling); // Place button appropriately
+}

@@ -1,32 +1,57 @@
-const fullscreenButton = document.getElementById('fullscreen-button');
-
 // --- Event Listeners ---
-addPlayerBtn.addEventListener('click', addPlayer);
-playerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayer(); });
-startGameBtn.addEventListener('click', startGame);
-mainActionBtn.addEventListener('click', handleMainButtonClick); // Restored listener
+
+// Setup Phase
+addPlayerBtn.addEventListener('click', addPlayerFromSetup);
+playerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayerFromSetup(); });
+startGameBtn.addEventListener('click', initializeGame); // Changed from startGame
+
+// Game Phase
+mainActionBtn.addEventListener('click', handleMainButtonClick);
 nextRoundBtn.addEventListener('click', startNewRound);
-showLowestBtn.addEventListener('click', showLowestScoreInfo); // Sound added in function
+showLowestBtn.addEventListener('click', showLowestScoreInfo);
 die1Div.addEventListener('click', () => handleDieClick(0));
 die2Div.addEventListener('click', () => handleDieClick(1));
-spelFaseDiv.addEventListener('click', handleBackgroundClick);
 
-// Settings Listeners
-const settingsButtons = document.querySelectorAll('.settings-button');
+// Use event delegation on a common ancestor for background click if spelFaseDiv is too broad
+// For example, if 'spel-fase' itself has many clickable children not intended for rolling.
+// document.body.addEventListener('click', handleBackgroundClick); // Or a more specific game area container
+spelFaseDiv.addEventListener('click', handleBackgroundClick); // Keeping original target
+
+// Settings Menu
+const settingsButtons = document.querySelectorAll('.settings-button'); // Selects all buttons with this class
 settingsButtons.forEach(button => {
     button.addEventListener('click', showSettingsMenu);
 });
-saveSettingsButton.addEventListener('click', () => {hideSettingsMenu(); updateLongestTurnDrinkEnabled();});
+saveSettingsButton.addEventListener('click', hideSettingsMenuAndSave);
 settingsAddPlayerBtn.addEventListener('click', addPlayerFromSettings);
 settingsPlayerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addPlayerFromSettings(); });
 
-fullscreenButton.addEventListener('click', () => {
-    const docEl = document.documentElement;
-    if (docEl.requestFullscreen) docEl.requestFullscreen();
-    else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
-    else if (docEl.mozRequestFullScreen) docEl.mozRequestFullScreen(); // Careful to the capital S
-    else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen();
-    else if (docEl.webkitEnterFullscreen) docEl.webkitEnterFullscreen(); // Magic is here for iOS
-});
 
-document.addEventListener('fullscreenchange', () => {fullscreenButton.classList.toggle('invisible', document.fullscreenElement !== null)});
+// Fullscreen Button
+const fullscreenButton = document.getElementById('fullscreen-button');
+if (fullscreenButton) { // Gracefully handle if button is not present
+    fullscreenButton.addEventListener('click', () => {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) docEl.requestFullscreen();
+        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen(); // Safari
+        else if (docEl.mozRequestFullScreen) docEl.mozRequestFullScreen(); // Firefox (note capital S)
+        else if (docEl.msRequestFullscreen) docEl.msRequestFullscreen(); // IE/Edge
+        // iOS Safari might need webkitEnterFullscreen for video, but for document:
+        else if (docEl.webkitEnterFullscreen && !document.fullscreenElement && !document.webkitFullscreenElement) { // Check if not already fullscreen
+             docEl.webkitEnterFullscreen(); // Older iOS Safari
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        fullscreenButton.classList.toggle('invisible', !!document.fullscreenElement);
+    });
+    document.addEventListener('webkitfullscreenchange', () => { // For Safari
+        fullscreenButton.classList.toggle('invisible', !!document.webkitFullscreenElement);
+    });
+    document.addEventListener('mozfullscreenchange', () => { // For Firefox
+        fullscreenButton.classList.toggle('invisible', !!document.mozFullScreenElement);
+    });
+    document.addEventListener('MSFullscreenChange', () => { // For IE/Edge
+        fullscreenButton.classList.toggle('invisible', !!document.msFullscreenElement);
+    });
+}
