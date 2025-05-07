@@ -378,8 +378,7 @@ function endRound() {
 
     // Show results
     rondeResultatenDiv.style.display = 'block';
-    nextRoundBtn.style.display = 'block'; // Ensure button is part of flow
     nextRoundBtn.disabled = false;
-    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader.nextSibling); // Place button appropriately
+    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader.previousElementSibling); // Place button appropriately
     saveGameState();
 }

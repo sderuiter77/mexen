@@ -144,7 +144,6 @@ h3 { font-size: 1.3em; }
     color: #aed6f1;
 }
 
-
 .remove-player-button {
     width: 20px;
     height: 20px;
@@ -492,7 +491,7 @@ button:disabled {
 #ronde-resultaten hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.2); margin: 15px 0; }
 #ronde-resultaten button {
     margin-top: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 30px;
     background-image: linear-gradient(to bottom, var(--secondary-color), #2980b9);
     box-shadow: 0 3px 8px rgba(52, 152, 219, 0.4);
     display: block;

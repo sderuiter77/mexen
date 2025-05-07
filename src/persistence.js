@@ -293,7 +293,7 @@ function displayRoundResultsUI() {
     if (actualLowestPlayerIdsForPenalty && actualLowestPlayerIdsForPenalty.length > 0 && playerRoundData[actualLowestPlayerIdsForPenalty[0]] /*&& playerRoundData[actualLowestPlayerIdsForPenalty[0]].drinksToTake > 0*/) {
          const loserNames = actualLowestPlayerIdsForPenalty.map(id => playerRoundData[id]?.name || id).join(' en ');
          const penaltyDrinks = 1 * drinksMultiplier;
-         announcementDiv.textContent = `${loserNames} ${actualLowestPlayerIdsForPenalty.length > 1 ? 'drinken' : 'drinkt'} voor de laagste score (${lowestScoreDisplayForMessage||'onbekend'}) - ${penaltyDrinks} ${pluralizeSlok(penaltyDrinks)}!`;
+         announcementDiv.textContent = `${loserNames} laag - ${penaltyDrinks} ${pluralizeSlok(penaltyDrinks)}!`;
     } else {
         announcementDiv.textContent = "";
     }
@@ -311,7 +311,7 @@ function displayRoundResultsUI() {
         }
         if (longestTurnPlayerIdForDisplay && playerRoundData[longestTurnPlayerIdForDisplay]?.turnDuration > 0) {
             const drinksForLongest = 1 * drinksMultiplier;
-            longestTurnAnnouncementDiv.textContent = `${playerRoundData[longestTurnPlayerIdForDisplay].name} atje des, ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`;
+            longestTurnAnnouncementDiv.textContent = `${playerRoundData[longestTurnPlayerIdForDisplay].name} atje des - ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`;
             longestTurnAnnouncementDiv.style.display = 'block';
         } else {
             longestTurnAnnouncementDiv.style.display = 'none';
@@ -321,7 +321,7 @@ function displayRoundResultsUI() {
     }
 
     rondeResultatenDiv.classList.add('showing-results');
-    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader.nextSibling);
+    rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader.previousElementSibling);
 }
 
 // Modify sub-functions in round.js to accept a 'displayOnly' flag
