@@ -59,7 +59,7 @@ if (fullscreenButton) { // Gracefully handle if button is not present
 const resetGameBtn = document.getElementById('reset-game-btn');
 if (resetGameBtn) {
     resetGameBtn.addEventListener('click', () => {
-        if (confirm("Weet je zeker dat je het huidige spel (inclusief opgeslagen voortgang) wilt wissen en opnieuw wilt beginnen?")) {
+        if (confirm("Weet je zeker dat je het huidige spel wilt wissen en opnieuw wilt beginnen?")) {
             clearSavedGameStateAndResetApp(); // From persistence.js
         }
     });

@@ -141,7 +141,6 @@ function clearSavedGameStateAndResetApp() {
     if (settingsMenu.classList.contains('visible')) {
         hideSettingsMenuAndSave(); // Close settings menu if open
     }
-    alert("Opgeslagen speldata is gewist. Je kunt een nieuw spel starten.");
 }
 
 function restoreUIFromState() {
