@@ -6,6 +6,7 @@ function addPlayerFromSetup() {
         playerInput.value = ''; // Clear input
         updatePlayerListForSetup();
         checkStartGameButtonState();
+        saveGameState();
     }
     playerInput.focus(); // Keep focus on input for easy multi-add
 }
@@ -14,6 +15,7 @@ function removePlayerFromSetup(playerIdToRemove) {
     players = players.filter(player => player.id !== playerIdToRemove);
     updatePlayerListForSetup();
     checkStartGameButtonState();
+    saveGameState();
 }
 
 function updatePlayerListForSetup() {

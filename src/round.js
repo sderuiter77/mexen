@@ -143,6 +143,7 @@ function startNewRound() {
     document.getElementById('message-wrapper').style.display = '';
 
     setupPlayerTurn();
+    saveGameState();
 }
 
 function checkRoundEnd() {
@@ -165,7 +166,7 @@ function checkRoundEnd() {
 }
 // --- endRound function broken down ---
 
-function calculateSpecialActionMessages() {
+function calculateSpecialActionMessages(displayOnly = false) {
     const messages = [];
     for (const playerId in playerRoundData) {
         const pData = playerRoundData[playerId];
@@ -181,24 +182,26 @@ function calculateSpecialActionMessages() {
     return messages;
 }
 
-function calculateOvertakeMessagesAndUpdateDrinks() {
+function calculateOvertakeMessagesAndUpdateDrinks(displayOnly = false) { // Modified from persistence.js, now primary
     const messages = [];
     if (overtakenPlayersMap.size > 0) {
         overtakenPlayersMap.forEach((totalOvertakeDrinks, playerId) => {
             const overtakenPlayerData = playerRoundData[playerId];
             if (overtakenPlayerData) {
                 messages.push(`<strong>${overtakenPlayerData.name}</strong> drinkt ${totalOvertakeDrinks} ${pluralizeSlok(totalOvertakeDrinks)} (laag overgenomen)`);
-                overtakenPlayerData.drinksToTake += totalOvertakeDrinks;
+                if (!displayOnly) {
+                    overtakenPlayerData.drinksToTake += totalOvertakeDrinks;
+                }
             }
         });
     }
     return messages;
 }
 
-function calculateLowestScorePenalty(drinksMultiplier) {
+function calculateLowestScorePenalty(drinksMultiplier, displayOnly = false) { // Added displayOnly
     const messages = [];
     let lowestScoreDisplayForMessage = "";
-    let actualLowestPlayerIdsForPenalty = []; // IDs of those who specifically drink for lowest score
+    let actualLowestPlayerIdsForPenalty = [];
 
     if (currentRoundLowestPlayerIds.length > 0 && roundLowestScore !== Infinity) {
         const drinksForLowest = 1 * drinksMultiplier;
@@ -206,58 +209,62 @@ function calculateLowestScorePenalty(drinksMultiplier) {
         if (roundLowestScore === 1000) {
             lowestScoreDisplayForMessage = "Mex";
         } else {
-            // Find the display value from one of the players who got this score
             const pDataExample = playerRoundData[currentRoundLowestPlayerIds[0]];
             const throwExample = pDataExample?.throwsHistory.slice().reverse().find(t => t.scoreResult.value === roundLowestScore && t.scoreResult.type === 'normal');
             lowestScoreDisplayForMessage = throwExample ? throwExample.scoreResult.display : roundLowestScore.toString();
         }
 
         currentRoundLowestPlayerIds.forEach(playerId => {
-            // Only apply penalty if not already penalized for being overtaken (map has precedence)
             if (playerRoundData[playerId] && !overtakenPlayersMap.has(playerId)) {
-                playerRoundData[playerId].drinksToTake += drinksForLowest;
+                if (!displayOnly) {
+                    playerRoundData[playerId].drinksToTake += drinksForLowest;
+                }
                 actualLowestPlayerIdsForPenalty.push(playerId);
             }
         });
         
         if (actualLowestPlayerIdsForPenalty.length > 0) {
-            const playerNames = actualLowestPlayerIdsForPenalty.map(id => `<strong>${playerRoundData[id].name}</strong>`).join(', ');
+            const playerNames = actualLowestPlayerIdsForPenalty.map(id => `<strong>${playerRoundData[id]?.name || id}</strong>`).join(', ');
             messages.push(`${playerNames} ${actualLowestPlayerIdsForPenalty.length > 1 ? 'hebben' : 'heeft'} laagste score (${lowestScoreDisplayForMessage}), ${drinksForLowest} ${pluralizeSlok(drinksForLowest)}`);
         }
         return { messages, lowestScoreDisplayForMessage, actualLowestPlayerIdsForPenalty };
     }
-    return { messages: (roundLowestScore === Infinity && overtakenPlayersMap.size === 0) ? ["Geen geldige laagste score bepaald deze ronde."] : [], lowestScoreDisplayForMessage: "", actualLowestPlayerIdsForPenalty };
+    return { messages: (roundLowestScore === Infinity && overtakenPlayersMap.size === 0) ? ["Geen geldige laagste score bepaald deze ronde."] : [], lowestScoreDisplayForMessage: "", actualLowestPlayerIdsForPenalty: [] };
 }
 
-
-function calculateLongestTurnPenalty(drinksMultiplier) {
+function calculateLongestTurnPenalty(drinksMultiplier, displayOnly = false) { // Added displayOnly
     const messages = [];
     let longestTurnPlayerId = null;
+    const longestTurnAnnouncementDiv = document.getElementById('longest-turn-announcement'); // Get it here
+
     if (longestTurnDrinkEnabled) {
         let maxDuration = -1;
         for (const playerId in playerRoundData) {
             const pData = playerRoundData[playerId];
-            if (pData.isActive && pData.turnDuration > maxDuration) { // Only consider active players for this penalty
+            // Ensure player was active in this round and had a turn for this penalty
+            if (pData && pData.isActive && pData.turnDuration > 0 && pData.turnDuration > maxDuration) {
                 maxDuration = pData.turnDuration;
                 longestTurnPlayerId = playerId;
             }
         }
 
-        if (longestTurnPlayerId && playerRoundData[longestTurnPlayerId].turnDuration > 0) { // ensure there was a turn
-            const drinksForLongest = 1 * drinksMultiplier; // Same as lowest score penalty amount
-            playerRoundData[longestTurnPlayerId].drinksToTake += drinksForLongest;
+        if (longestTurnPlayerId) {
+            const drinksForLongest = 1 * drinksMultiplier;
+            if (!displayOnly) {
+                playerRoundData[longestTurnPlayerId].drinksToTake += drinksForLongest;
+            }
             const durationStr = formatDuration(playerRoundData[longestTurnPlayerId].turnDuration);
             messages.push(`<strong>${playerRoundData[longestTurnPlayerId].name}</strong> atje des (${durationStr}), ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`);
             
-            // Update specific announcement div
-            const longestTurnAnnouncementDiv = document.getElementById('longest-turn-announcement');
-            longestTurnAnnouncementDiv.textContent = `${playerRoundData[longestTurnPlayerId].name} atje des, ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`;
-            longestTurnAnnouncementDiv.style.display = 'block';
-        } else {
-             document.getElementById('longest-turn-announcement').style.display = 'none';
+            if (longestTurnAnnouncementDiv) {
+                longestTurnAnnouncementDiv.textContent = `${playerRoundData[longestTurnPlayerId].name} atje des, ${drinksForLongest} ${pluralizeSlok(drinksForLongest)}!`;
+                longestTurnAnnouncementDiv.style.display = 'block';
+            }
+        } else if (longestTurnAnnouncementDiv) {
+             longestTurnAnnouncementDiv.style.display = 'none';
         }
-    } else {
-        document.getElementById('longest-turn-announcement').style.display = 'none';
+    } else if (longestTurnAnnouncementDiv) {
+        longestTurnAnnouncementDiv.style.display = 'none';
     }
     return messages;
 }
@@ -321,12 +328,12 @@ function endRound() {
     let allActionMessages = [];
 
     allActionMessages.push(...calculateSpecialActionMessages());
-    allActionMessages.push(...calculateOvertakeMessagesAndUpdateDrinks());
+    allActionMessages.push(...calculateOvertakeMessagesAndUpdateDrinks()); // displayOnly defaults to false
     
-    const { messages: lowestScoreMessages, lowestScoreDisplayForMessage, actualLowestPlayerIdsForPenalty } = calculateLowestScorePenalty(drinksMultiplier);
+    const { messages: lowestScoreMessages, lowestScoreDisplayForMessage, actualLowestPlayerIdsForPenalty } = calculateLowestScorePenalty(drinksMultiplier); // displayOnly defaults to false
     allActionMessages.push(...lowestScoreMessages);
     
-    allActionMessages.push(...calculateLongestTurnPenalty(drinksMultiplier));
+    allActionMessages.push(...calculateLongestTurnPenalty(drinksMultiplier)); // displayOnly defaults to false
 
     // Build Action Display HTML
     let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
@@ -374,4 +381,5 @@ function endRound() {
     nextRoundBtn.style.display = 'block'; // Ensure button is part of flow
     nextRoundBtn.disabled = false;
     rondeResultatenDiv.insertBefore(nextRoundBtn, resultsHeader.nextSibling); // Place button appropriately
+    saveGameState();
 }

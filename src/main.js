@@ -1,3 +1,21 @@
+document.addEventListener('DOMContentLoaded', () => {
+  if (loadGameState()) { // loadGameState is from persistence.js
+      // Game state was successfully loaded
+      restoreUIFromState(); // restoreUIFromState is from persistence.js
+      // Potentially show a small notification: "Game hervat!"
+      showTemporaryMessage("Spel hervat van vorige sessie!", "info");
+      setTimeout(hideMessage, 3000); // Hide after 3 seconds
+  } else {
+      // No valid saved state, start fresh setup
+      checkStartGameButtonState(); // From helpers.js
+      hideMessage(); // From helpers.js
+      // Ensure setup phase is visible by default if no game loaded
+      setupFaseDiv.style.display = 'flex';
+      spelFaseDiv.style.display = 'none';
+      rondeResultatenDiv.style.display = 'none';
+  }
+});
+
 function initializeGame() {
   if (players.length < 1) {
       alert("Voeg minimaal één speler toe om het spel te starten.");
@@ -17,7 +35,8 @@ function initializeGame() {
   setupFaseDiv.style.display = 'none';
   spelFaseDiv.style.display = 'flex';
   hideMessage();
-  startNewRound(); // This will increment currentRound to 1 and set up the first turn
+  startNewRound();
+  saveGameState(); // This will increment currentRound to 1 and set up the first turn
 }
 
 // Listener for the main start game button (from setup phase)
@@ -60,13 +79,12 @@ function showSettingsMenu() {
 
 function hideSettingsMenuAndSave() {
   settingsMenu.classList.remove('visible');
-  // Save settings
+  const oldLongestTurnEnabled = longestTurnDrinkEnabled;
   longestTurnDrinkEnabled = document.getElementById('longest-turn-drink-enabled').checked;
-  // Potentially update player order if drag-drop happened and game is not mid-round
-  // The dragging.js should update the `players` array directly.
-  // If a round is in progress, changes to player order via settings drag-drop
-  // should ideally take effect from the *next* round.
-  // `startNewRound` will use the current `players` array order.
+  if (oldLongestTurnEnabled !== longestTurnDrinkEnabled) {
+      saveGameState(); // Save if this setting changed
+  }
+  // Player order changes via drag-drop in settings are saved by dragging.js's drop handler
 }
 
 function addPlayerFromSettings() {
@@ -92,6 +110,7 @@ function addPlayerFromSettings() {
       settingsPlayerInput.value = '';
       showSettingsMenu(); // Refresh list
       if (gameState === 'setup') checkStartGameButtonState();
+      saveGameState();
   }
 }
 
@@ -163,9 +182,16 @@ function removePlayerFromSettings(playerIdToRemove) {
       }
       // If current player was marked inactive (playerHasTakenTurnThisRound = true),
       // their turn effectively ends. If it was their go, advanceToNextPlayer will be called by endPlayerTurn/main button.
+      saveGameState(); // Save after removing/inactivating player
   }
+  
 }
 
+window.addEventListener('beforeunload', () => {
+  if (gameState !== 'setup') { // Don't save if still in pure setup phase with no game started
+      saveGameState();
+  }
+});
 
 // Initial checks
 checkStartGameButtonState();

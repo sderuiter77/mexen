@@ -98,6 +98,7 @@ function handleRollResultLogic() {
         die2Div.classList.add('clickable');
         mainActionBtn.disabled = false;
         showLowestBtn.disabled = false;
+        saveGameState();
         // Note: throwsThisTurn does NOT increment for special 31/32 based on original logic
         return; // Turn does not end, player can roll again
     }
@@ -153,6 +154,7 @@ function handleRollResultLogic() {
         allowHolding = true;
         die1Div.classList.add('clickable'); // Make dice clickable for holding
         die2Div.classList.add('clickable');
+        saveGameState();
     }
 }
 

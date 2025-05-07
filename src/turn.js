@@ -63,7 +63,10 @@ function setupPlayerTurn() {
     // This is less likely here if currentPlayerId is correctly selected above.
     if (checkRoundEnd()) {
         endRound();
+    if (gameState === 'playing') { // Ensure we are actually in playing state after setup
+        saveGameState(); // Save state when a new player's turn is set up
     }
+}
 }
 
 
@@ -128,9 +131,10 @@ function endPlayerTurn() {
     }
 
     if (checkRoundEnd()) {
-        endRound();
+        endRound(); // This will call saveGameState
+    } else {
+        saveGameState(); // Save state when a player's turn ends but round continues
     }
-    // Otherwise, mainActionBtn click will call advanceToNextPlayer when state is 'turnOver'
 }
 
 function advanceToNextPlayer() {

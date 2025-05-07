@@ -55,3 +55,12 @@ if (fullscreenButton) { // Gracefully handle if button is not present
         fullscreenButton.classList.toggle('invisible', !!document.msFullscreenElement);
     });
 }
+
+const resetGameBtn = document.getElementById('reset-game-btn');
+if (resetGameBtn) {
+    resetGameBtn.addEventListener('click', () => {
+        if (confirm("Weet je zeker dat je het huidige spel (inclusief opgeslagen voortgang) wilt wissen en opnieuw wilt beginnen?")) {
+            clearSavedGameStateAndResetApp(); // From persistence.js
+        }
+    });
+}

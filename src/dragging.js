@@ -147,7 +147,8 @@ document.addEventListener("drop", (event) => {
                 } else if (gameState === 'playing' && roundTurnOrder.slice(playedOrInactiveCount).length === 0 && checkRoundEnd()){
                     endRound(); // All reordered players have played
                 }
-            }
+              }
+            saveGameState();
         }
     }
 
