@@ -2,112 +2,139 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="styles/style.css">
     <title>Pinquin Mex</title>
-
 </head>
 <body>
-    <button id="fullscreen-button"><img src="images/fullscreen-icon.png" alt="Fullscreen"></button>
-    <div class="title-container">
-        <img class="penguin-logo" src="images/drunk-penguin.webp" alt="Drunk Penguin Logo">
-        <h1>Pinquin Mex</h1>
-    </div>
+    <header class="site-header">
+        <button id="fullscreen-button" aria-label="Toggle Fullscreen">
+            <img src="images/fullscreen-icon.png" alt="Fullscreen Icon">
+        </button>
+        <div class="title-container">
+            <img class="penguin-logo" src="images/drunk-penguin.webp" alt="Drunk Penguin Logo">
+            <h1>Pinquin Mex</h1>
+        </div>
+        <div class="header-action-placeholder"></div>
+    </header>
 
+    <main class="site-main">
+        <!-- Setup Fase -->
+        <div id="setup-fase" class="view-container">
+            <h2>Spelers</h2>
+            <div class="input-group">
+                <input type="text" id="player-input" placeholder="Naam speler">
+                <button id="add-player-btn">Voeg Toe</button>
+            </div>
+            <ul id="player-list"></ul>
+            <button id="start-game-btn" disabled>Start Spel</button>
+            <p class="subtle-text"><small>Minimaal 1 speler nodig</small></p>
+        </div>
+
+        <!-- Spel Fase -->
+        <div id="spel-fase" class="view-container">
+            <div class="game-content-area"> <!-- Added wrapper for main game content -->
+                <div class="game-header-controls">
+                    <h2 id="ronde-titel">Ronde 1</h2>
+                    <button class="settings-button" aria-label="Open Settings">
+                        <img src="images/gear-icon.png" alt="Settings Icon" />
+                    </button>
+                </div>
+                
+                <div id="spel-info-wrapper">
+                     <h3 id="speler-aan-zet">Speler: ...</h3>
+                     <div id="worp-info">Worp: <span id="worp-teller">0</span> / <span id="max-worpen">3</span></div>
+                </div>
+                <div class="dice-container">
+                     <div id="die1" class="die" data-value="0" aria-label="Dice 1 showing 0">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    </div>
+                    <div id="die2" class="die" data-value="0" aria-label="Dice 2 showing 0">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    </div>
+                </div>
+                <div id="score-display" class="score-display">Score: -</div>
+                <div id="message-wrapper">
+                    <div id="message-area" class="message-area" role="alert" aria-live="polite"></div>
+                </div>
+                <div id="ronde-resultaten">
+                    <h3 id="results-header">Resultaten</h3>
+                    
+                    <div class="results-primary-announcements">
+                        <div id="lowest-score-announcement" role="alert"></div>
+                        <div id="longest-turn-announcement" role="alert"></div>
+                    </div>
+                    <button id="next-round-btn">Volgende Ronde</button>
+                    <hr class="results-divider">
     
-    <!-- Setup Fase -->
-    <div id="setup-fase" class="container">
-        <h2>Spelers</h2>
-        <input type="text" id="player-input" placeholder="Naam speler">
-        <button id="add-player-btn">Voeg Toe</button>
-        <ul id="player-list"></ul>
-        <button id="start-game-btn" disabled>Start Spel</button>
-        <p><small>Minimaal 1 speler nodig</small></p>
-    </div>
+                    <details class="results-details-section">
+                        <summary>Acties</summary>
+                        <div id="resultaten-acties">
+                            <!-- Content will be injected by JS -->
+                        </div>
+                    </details>
+                    
+                    <hr class="results-divider-minor">
+    
+                    <details class="results-details-section">
+                        <summary>Worpgeschiedenis</summary> <!-- Changed from Worp details -->
+                        <div id="resultaten-scores">
+                            <!-- Content will be injected by JS -->
+                        </div>
+                    </details>
+                </div>
+            </div> <!-- End of game-content-area -->
 
-    <!-- Spel Fase -->
-    <div id="spel-fase" class="container">
-        <h2 id="ronde-titel">Ronde 1</h2><button class="settings-button"><img src="images/gear-icon.png" alt="Settings" /></button>
-        <!-- Elements to hide/show -->
-        <div id="spel-info">
-             <h3 id="speler-aan-zet">Speler: ...</h3>
-             <div id="worp-info">Worp: <span id="worp-teller">0</span> / <span id="max-worpen">3</span></div>
-        </div>
-        <div class="dice-container">
-             <div id="die1" class="die" data-value="0">
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            </div>
-            <div id="die2" class="die" data-value="0">
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <!-- Round Results (Initially hidden, shown within spel-fase container) -->
+      
+            <div id="actie-knoppen-wrapper"> <!-- Wrapper for bottom buttons -->
+                <div id="actie-knoppen">
+                    <button id="main-action-btn" disabled>Gooi</button>
+                    <button id="show-lowest-btn">Toon Laagste</button>
+                </div>
             </div>
         </div>
-        <div id="score-display" class="score-display">Score: -</div>
-        <div id="message-wrapper">
-            <div id="message-area" class="message-area"></div>
-        </div>
-        <!-- Restored action buttons div -->
-        <div id="actie-knoppen">
-            <button id="main-action-btn" disabled>Gooi</button>
-            <button id="show-lowest-btn">Toon Laagste</button>
-            <!-- Removed settings button from here -->
-        </div>
-        <!-- End elements to hide/show -->
-
-        <!-- Round Results (Initially hidden) -->
-        <div id="ronde-resultaten">
-            <!-- Removed settings button from here -->
-            <div id="lowest-score-announcement"></div> <!-- ADDED: For lowest score message -->
-            <div id="longest-turn-announcement"></div>
-            <button id="next-round-btn">Volgende Ronde</button>
-            <hr>
-            <h3 id="results-header">Resultaten</h3>
-            <div id="resultaten-acties"></div>
-            <hr>
-            <div id="resultaten-scores"></div>
-             
-         </div>
-    </div>
-
-    <!-- Sound Effects (Remember to replace src paths) -->
+    </main>
+    
+    <!-- Sound Effects -->
     <audio id="sound-dice-roll" src="sounds/DiceRoll.wav" preload="auto"></audio>
-    <audio id="sound-show-lowest" src="sounds/ShowLowestScore.wav"></audio> <!-- Specific sound -->
+    <audio id="sound-show-lowest" src="sounds/ShowLowestScore.wav" preload="auto"></audio>
 
     <!-- Settings Menu Overlay -->
-    <div id="settings-menu" class="settings-menu-overlay">
+    <div id="settings-menu" class="settings-menu-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
         <div class="settings-menu-content">
-            <h2>Instellingen</h2>
+            <h2 id="settings-title">Instellingen</h2>
 
             <div class="settings-section game-settings">
+                 <h3>Spelopties</h3>
                  <div class="setting-item">
-                    <label class="toggle-label">Langste beurt drinkt:</label>
+                    <label for="longest-turn-drink-enabled" class="toggle-label">Langste beurt drinkt:</label>
                     <label class="switch">
                       <input type="checkbox" id="longest-turn-drink-enabled">
                       <span class="slider round"></span>
                     </label>
                  </div>
                  <div class="setting-item">
-                    <button id="reset-game-btn" style="background-color: var(--accent-color);">Reset game</button>
+                    <button id="reset-game-btn" class="button-danger">Reset game</button>
                  </div>
             </div>
 
             <div class="settings-section player-settings">
                 <h3>Spelers beheren</h3>
-                 <div class="player-input-area">
+                 <div class="input-group">
                     <input type="text" id="settings-player-input" placeholder="Naam speler">
                     <button id="settings-add-player-btn">Voeg Toe</button>
                  </div>
                 <ul id="settings-player-list"></ul>
             </div>
 
-            <button id="save-settings-button">Sluiten</button>
+            <button id="save-settings-button" class="button-primary">Sluiten</button>
         </div>
     </div>
-</div>
-
     
     <script defer src="src/globals.js"></script>
     <script defer src="src/helpers.js"></script>
@@ -120,7 +147,5 @@
     <script defer src="src/main.js"></script>
     <script defer src="src/listeners.js"></script>
     <script defer src="src/dragging.js"></script>
-    
-    
 </body>
 </html>

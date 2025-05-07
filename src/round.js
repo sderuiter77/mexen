@@ -270,7 +270,7 @@ function calculateLongestTurnPenalty(drinksMultiplier, displayOnly = false) { //
 }
 
 function buildScoresHtml() {
-    let scoreHTML = "<strong>Worp details</strong><br>";
+    let scoreHTML = "";
     roundTurnOrder.forEach(playerId => {
         const pData = playerRoundData[playerId];
         if (!pData) { // Should not happen if data is synced
@@ -336,8 +336,8 @@ function endRound() {
     allActionMessages.push(...calculateLongestTurnPenalty(drinksMultiplier)); // displayOnly defaults to false
 
     // Build Action Display HTML
-    let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
-    actionsHTML += '<div class="actions-section">';
+    let actionsHTML = "";
+    actionsHTML = '<div class="actions-section">';
     actionsHTML += allActionMessages.length > 0 ? allActionMessages.join('<br>') : "Geen speciale acties deze ronde.";
     if (mexCountThisRound > 0) {
         const mexWord = numberToWord(mexCountThisRound);

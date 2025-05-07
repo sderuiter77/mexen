@@ -267,8 +267,8 @@ function displayRoundResultsUI() {
     
     allActionMessages.push(...calculateLongestTurnPenalty(drinksMultiplier, true)); // from round.js - flag
 
-    let actionsHTML = "<strong class='actions-section'>Acties</strong><br>";
-    actionsHTML += '<div class="actions-section">';
+    let actionsHTML = "";
+    actionsHTML = '<div class="actions-section">';
     actionsHTML += allActionMessages.length > 0 ? allActionMessages.join('<br>') : "Geen speciale acties deze ronde.";
     if (mexCountThisRound > 0) {
         const mexWord = numberToWord(mexCountThisRound);

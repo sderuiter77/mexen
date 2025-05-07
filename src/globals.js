@@ -54,7 +54,7 @@ const resultsHeader = document.getElementById('results-header');
 const resultatenScoresDiv = document.getElementById('resultaten-scores');
 const resultatenActiesDiv = document.getElementById('resultaten-acties');
 const diceContainer = document.querySelector('.dice-container');
-const spelInfoDiv = document.getElementById('spel-info');
+const spelInfoDiv = document.getElementById('spel-info-wrapper');
 const actieKnoppenDiv = document.getElementById('actie-knoppen');
 
 // Settings DOM Elements
