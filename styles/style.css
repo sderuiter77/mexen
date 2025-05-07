@@ -352,7 +352,7 @@ h3 { font-size: 1.3em; }
    box-shadow: 0 2px 4px var(--shadow-color-light);
    /* min-height: 24px; */
 }
-.message-area.visible { display: block; opacity: 1; }
+.message-area.visible { display: block; opacity: 1; visibility: visible; }
 .message-area.special {
    color: var(--accent-color); font-size: 1.05em;
    background-color: #f8d7da; border-color: #f5c6cb;

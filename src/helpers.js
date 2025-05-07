@@ -53,7 +53,7 @@ function showTemporaryMessage(msg, type = 'info') {
         messageAreaDiv.classList.add('special');
     }
     // Ensure the wrapper has a defined min-height or the message area itself.
-    // messageAreaDiv.style.visibility = 'visible'; // Already handled by 'visible' class
+    messageAreaDiv.style.visibility = 'visible'; // Already handled by 'visible' class
 }
 
 function hideMessage() {
