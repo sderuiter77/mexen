@@ -404,7 +404,7 @@ input[type="text"]:focus {
     background-color: transparent; /* Match view-container or body background if needed */
     flex-shrink: 0; /* Prevent this wrapper from shrinking */
     margin-top: auto; /* Pushes to the bottom if parent is flex column */
-    margin-bottom: 3vh
+    margin-bottom: 10vh
 }
 #actie-knoppen {
     display: flex;
